@@ -509,7 +509,6 @@ void move_piece(int arr[8][8], int arr2[2][2], string p, int specialMove)
         fio << (char)(7-arr2[0][0]+'1') << (char)(arr2[0][1]+'a') << ' ';
         fio << (char)(7-arr2[1][0]+'1') << (char)(arr2[1][1]+'a') << '\n';
         fio.close();
-        if (arr[arr2[1][0]][arr2[1][1]]) remaining--;
         arr[arr2[1][0]][arr2[1][1]] = arr[arr2[0][0]][arr2[0][1]];
         arr[arr2[0][0]][arr2[0][1]] = 0;
     } else {
@@ -536,7 +535,6 @@ void move_piece(int arr[8][8], int arr2[2][2], string p, int specialMove)
             } else {
                 arr[arr2[1][0]-1][arr2[1][1]] = 0;
             }
-            remaining--;
         }
         if (specialMove == 3) {
             if (p[p.size()-1] == '1') arr[arr2[1][0]][arr2[1][1]] = 1;
