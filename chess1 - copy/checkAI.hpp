@@ -133,36 +133,37 @@ bool is_place_safe(int arr[8][8], char p, int place[2])
     return true;
 }
 
+// checking weather a move is valid or not
 
-
-bool is_car_move_valid(int arr[8][8], int start[2], int end[2])
+bool is_car_move_valid(int board[8][8], int start[2], int end[2], chess_move move)
 {
-    int hori = abs(end[0]-start[0]);
-    int vert = abs(end[1]-start[1]);
+    int hori = abs(move.start_col-move.end_col);
+    int vert = abs(move.start_row-move.end_row);
     if ((hori > 0 && vert > 0) || (hori == 0 && vert == 0)) return false;
+
+    bool status = true;
     if (hori == 0) {
-        bool status = true;
-        if (start[1] > end[1]) {
-            for (int i = end[1]+1; i < start[1]; i++) {
-                if (arr[start[0]][i] != 0) status = false;
+        if (move.start_row > move.end_row) {
+            for (int i = move.end_row+1; i < move.start_row; i++) {
+                if (board[move.start_col][i] != 0) status = false;
             }
         } else {
-            for (int i = start[1]+1; i < end[1]; i++) {
-                if (arr[start[0]][i] != 0) status = false;
+            for (int i = move.start_row+1; i < move.end_row; i++) {
+                if (board[move.start_col][i] != 0) status = false;
             }
-        } return status;
+        }
     } else {
-        bool status = true;
-        if (start[0] > end[0]) {
-            for (int i = end[0]+1; i < start[0]; i++) {
-                if (arr[i][start[1]] != 0) status = false;
+        if (move.start_col > move.end_col) {
+            for (int i = move.end_col+1; i < move.start_col; i++) {
+                if (board[i][move.start_row] != 0) status = false;
             }
         } else {
-            for (int i = start[0]+1; i < end[0]; i++) {
-                if (arr[i][start[1]] != 0) status = false;
+            for (int i = move.start_col+1; i < move.end_col; i++) {
+                if (board[i][move.start_row] != 0) status = false;
             }
-        } return status;
+        }
     }
+    return status;
 }
 
 bool is_elephant_move_valid(int arr[8][8], int start[2], int end[2])
@@ -354,7 +355,7 @@ bool move_is_valid(int arr[8][8], int arr2[2][2], string p, int &specialMove)
     int valid = false;
     int piece = arr[start[0]][start[1]];
     if (piece == 1 || piece == -1) {
-        valid = is_car_move_valid(arr, start, end);
+        valid = is_car_move_valid(arr, start, end, {0, start[0], start[1], end[0], end[1]});
     }
     else if (piece == 2 || piece == -2) {
         vector<int> v = {abs(end[0]-start[0]), abs(end[1]-start[1])};
@@ -366,7 +367,7 @@ bool move_is_valid(int arr[8][8], int arr2[2][2], string p, int &specialMove)
         valid = is_elephant_move_valid(arr, start, end);
     }
     else if (piece == 4 || piece == -4) {
-        valid = is_car_move_valid(arr, start, end) || is_elephant_move_valid(arr, start, end);
+        valid = is_car_move_valid(arr, start, end, {0, start[0], start[1], end[0], end[1]}) || is_elephant_move_valid(arr, start, end);
     }
     else if (piece == 5 || piece == -5) {
         vector<int> v = {abs(end[0]-start[0]), abs(end[1]-start[1])};
@@ -415,6 +416,10 @@ bool move_is_valid(int arr[8][8], int arr2[2][2], string p, int &specialMove)
     return true;
 }
 
+
+
+
+
 bool move_is_valid_simpler(int arr[8][8], int arr2[2][2], string p)
 {
     int start[2] = {arr2[0][0], arr2[0][1]};
@@ -435,7 +440,7 @@ bool move_is_valid_simpler(int arr[8][8], int arr2[2][2], string p)
     int valid = false;
     int piece = arr[start[0]][start[1]];
     if (piece == 1 || piece == -1) {
-        valid = is_car_move_valid(arr, start, end);
+        valid = is_car_move_valid(arr, start, end, {0, start[0], start[1], end[0], end[1]});
     }
     else if (piece == 2 || piece == -2) {
         vector<int> v = {abs(end[0]-start[0]), abs(end[1]-start[1])};
@@ -447,7 +452,7 @@ bool move_is_valid_simpler(int arr[8][8], int arr2[2][2], string p)
         valid = is_elephant_move_valid(arr, start, end);
     }
     else if (piece == 4 || piece == -4) {
-        valid = is_car_move_valid(arr, start, end) || is_elephant_move_valid(arr, start, end);
+        valid = is_car_move_valid(arr, start, end, {0, start[0], start[1], end[0], end[1]}) || is_elephant_move_valid(arr, start, end);
     }
     else if (piece == 5 || piece == -5) {
         vector<int> v = {abs(end[0]-start[0]), abs(end[1]-start[1])};
@@ -595,6 +600,10 @@ void move_piece_simpler(int arr[8][8], int arr2[2][2], string p, int specialMove
     }
 }
 
+
+
+
+// game ends functions
 bool is_it_tie(int arr[8][8], string p)
 {
     int arr2[8][8];
@@ -616,19 +625,15 @@ bool is_it_tie(int arr[8][8], string p)
     else return false;
 }
 
-
-void losted()
-{
+void losted() {
 	MessageBoxA(NULL, "The Computer Won!! Good Luck Next Time!", "You Lost!", MB_OK);
 }
 
-void won()
-{
+void won() {
 	MessageBoxA(NULL, "Congratulations You Won!!", "You Won!", MB_OK);
 }
 
-void tied()
-{
+void tied() {
 	MessageBoxA(NULL, "Ooops, Tie Game!!", "Tie Game!", MB_OK);
 }
 

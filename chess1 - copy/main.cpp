@@ -1,9 +1,9 @@
 struct chess_move
 {
-    int specialMove;
+    int special_move;
     int start_row;
-    int end_row;
     int start_col;
+    int end_row;
     int end_col;
 };
 
@@ -73,7 +73,7 @@ void surrender(string &turn)
 void load_position(vector<sf::Sprite> &chessFigures)
 {
     int k = 0;
-      for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
         for (int j = 0; j < 8; j++)
         {
             // Get the chess piece. If it is 0 then skip
@@ -97,7 +97,7 @@ void load_position(vector<sf::Sprite> &chessFigures)
 void play_chess()
 {
     // render window
-    sf::RenderWindow window(sf::VideoMode(448, 448), "Haozhe(Stephen) Yang's Chess Game!");
+    sf::RenderWindow window(sf::VideoMode(sizeOfSprite*8, sizeOfSprite*8), "Haozhe Yang's Chess Game!");
 
     // import texture
     sf::Texture t1,t2,t3;
@@ -117,6 +117,8 @@ void play_chess()
     sf::Sprite blueDot(t3);
     vector<sf::Sprite> avalibles;
 
+
+    // varibles req change
     bool isMove=false;
     float dx=0, dy=0;
     sf::Vector2f oldPos,newPos;
@@ -125,13 +127,15 @@ void play_chess()
 
     int Cmove;
     int pieceLastMoved;
-
+    bool clickedCorrectly = true;
     string turn = "player1";
+    chess_move computerMove;
 
+
+    // clear everything in chess.log
     fstream fio;
     fio.open("chess.log", ios::trunc | ios::in | ios::out);
     fio.close();
-    bool clickedCorrectly = true;
 
     window.setFramerateLimit(60);
     while (window.isOpen())
@@ -141,21 +145,28 @@ void play_chess()
 
         // computer makes a move
         if (turn == "player2") {
+            // get computer's move req change
             bool spec = false;
             Cmove = computer_move(board, spec);
             int arrr[2][2] = {(Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};
+            chess_move computerMove = {0, (Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};
+            // chess_move computerMove = computer_move(board, spec);
+            oldPos = sf::Vector2f(computerMove.start_col*sizeOfSprite, computerMove.start_row*sizeOfSprite);
+            newPos = sf::Vector2f(computerMove.end_col*sizeOfSprite, computerMove.end_row*sizeOfSprite);
+            cout << Cmove << endl;
 
-            oldPos = sf::Vector2f(arrr[0][1]*sizeOfSprite,arrr[0][0]*sizeOfSprite);
-            newPos = sf::Vector2f(arrr[1][1]*sizeOfSprite,arrr[1][0]*sizeOfSprite);
-            for(int i = 0; i < chessFigures.size(); i++) if (chessFigures[i].getPosition()==oldPos) n=i;
-            pieceLastMoved = n;
+            // move piece req change
+            for (int i = 0; i < chessFigures.size(); i++)
+                if (chessFigures[i].getPosition() == oldPos) n=i;
+            pieceLastMoved = n; // probably do not need
             sf::Vector2f p = newPos - oldPos;
-            for(int k=0;k<10;k++)
-            {
+            for (int i = 0; i < 10; i++) {
                 chessFigures[n].move(p.x/10, p.y/10);
                 display_chess_board(window, chessBoard, chessFigures);
             }
-            move_piece(board, arrr, turn, spec);
+            move_piece(board, arrr, turn, spec); // req change
+
+            // check win, if not move on to player
             turn = "player1";
             if (someone_won(board, turn)) {
                 game_ended(board, turn);
@@ -166,13 +177,18 @@ void play_chess()
 
         // game on going
         while (turn == "player1" && window.pollEvent(e)) {
-            // last move
+            // previous move req change
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-                chess_move lastMove = {0, (Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};
+
+                // get the preious move req change
+
+                /*chess_move lastMove = {0, (Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};*/
                 
                 int arrr[2][2] = {(Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};
                 oldPos = sf::Vector2f(arrr[0][1]*sizeOfSprite,arrr[0][0]*sizeOfSprite);
                 newPos = sf::Vector2f(arrr[1][1]*sizeOfSprite,arrr[1][0]*sizeOfSprite);
+
+                // move the piece req change
                 for(int i = 0; i< chessFigures.size(); i++) if (chessFigures[i].getPosition()==newPos) n=i;
                 sf::Vector2f p = oldPos - newPos;
                 
@@ -284,16 +300,16 @@ void play_chess()
             if (counter < chessFigures.size()) chessFigures.pop_back();
         }
 
-        ////// draw  ///////
+        // draw
         display_chess_board_with_avalibles(window, chessBoard, chessFigures, avalibles)
     }
 }
 
 int main()
 {
-    // hide console
-	HWND hWnd = GetConsoleWindow();
-    ShowWindow(hWnd, SW_HIDE);
+    // // hide console
+	// HWND hWnd = GetConsoleWindow();
+    // ShowWindow(hWnd, SW_HIDE);
 
 	// play chess
 	play_chess();
