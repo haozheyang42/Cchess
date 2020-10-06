@@ -1,6 +1,12 @@
 struct chess_move
 {
-    int special_move;
+    int special_move; // 0 for non special
+    // 1 for castling
+    // 2 for en passent
+    // 3 for pawn becomes rook
+    // 4 for pawn becomes knight
+    // 5 for pawn becomes bishop
+    // 6 for pawn becomes queen
     int start_row;
     int start_col;
     int end_row;
@@ -51,11 +57,12 @@ bool check(string str, string p)
     if (str[0] < 'a' || str[0] > 'h' || str[2] < 'a' || str[2] > 'h') return false;
     if (str[1] < '1' || str[1] > '8' || str[3] < '1' || str[3] > '8') return false;
     int arr[2][2] = {{str[1]-'1', str[0]-'a'}, {str[3]-'1', str[2]-'a'}};
+    chess_move move = {0, arr[0][0], arr[0][1], arr[1][0], arr[1][1]};
     if (board[arr[0][0]][arr[0][1]] == 0) return false;
 
     int specialMove = 0;
-    if (move_is_valid(board, arr, p, specialMove)) {
-        move_piece(board, arr, p, specialMove);
+    if (move_is_valid(board, move, p)) {
+        move_piece(board, move, p);
         return true;
     } return false;
 }
@@ -147,6 +154,7 @@ void play_chess()
         if (turn == "player2") {
             // get computer's move req change
             bool spec = false;
+            // cin >> Cmove;
             Cmove = computer_move(board, spec);
             int arrr[2][2] = {(Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};
             chess_move computerMove = {0, (Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};
@@ -164,7 +172,7 @@ void play_chess()
                 chessFigures[n].move(p.x/10, p.y/10);
                 display_chess_board(window, chessBoard, chessFigures);
             }
-            move_piece(board, arrr, turn, spec); // req change
+            move_piece(board, computerMove, turn); // req change
 
             // check win, if not move on to player
             turn = "player1";
@@ -220,7 +228,8 @@ void play_chess()
                             for (int j = 0; j < 8; j++) {
                                 int spec = 0;
                                 int arrr[2][2] = {arr2[0], arr2[1], i, j};
-                                if (move_is_valid(board, arrr, "player1", spec))
+                                chess_move move = {0, arr2[0], arr2[1], i, j};
+                                if (move_is_valid(board, move, "player1"))
                                     v.push_back(i*10+j);
                             }
                         for (int i: v) {

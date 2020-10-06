@@ -1,0 +1,5 @@
+is_car_move_valid        into   rook_move_is_valid     done
+is_elephant_move_valid   into   bishop_move_is_valid   done
+check_castling                                         done
+is_soldier_move_valid    into   pawn_move_is_valid     done
+eat_pass_by_soldier      into   check_en_passent       done

@@ -13,7 +13,7 @@ int computer_move(int arr[8][8], bool &specialMove)
     for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
     int arrr[2][2] = {(move/1000)%10, (move/100)%10, (move/10)%10, move%10};
     bool spec = false;
-    move_is_valid(arr2, arrr, "player2", spec);
+    move_is_valid(arr2, arrr, "player2");
     specialMove = spec;
     return move;
 }

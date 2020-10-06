@@ -1,9 +1,9 @@
-bool move_is_valid(int arr[8][8], int arr2[2][2], string p, int &specialMove);
-bool move_is_valid_simpler(int arr[8][8], int arr2[2][2], string p);
+bool move_is_valid(int arr[8][8], chess_move move, string p);
+bool move_is_valid_simpler(int arr[8][8], chess_move move, string p);
 bool is_place_safe(int arr[8][8], char p, int place[2]);
 void allmove(int arr[8][8], string p, vector<int> &moves);
-void move_piece_simpler(int arr[8][8], int arr2[2][2], string p, int specialMove);
-bool check_special_move(int arr[8][8], int arrr[2][2], int &specialMove);
+void move_piece_simpler(int arr[8][8], chess_move move, string p, int specialMove);
+bool check_special_move(int arr[8][8], chess_move move, int &specialMove);
 
 bool someone_won(int arr[8][8], string p)
 {
@@ -53,7 +53,7 @@ bool someone_won(int arr[8][8], string p)
     return false;
 }
 
-void check_soldier_endline(int arr[8][8], int &specialMove)
+void check_soldier_endline(int arr[8][8], chess_move move)
 {
     for (int i = 0; i < 8; i++) if (arr[0][i] == 6) {
         const int size = 56;
@@ -90,7 +90,7 @@ void check_soldier_endline(int arr[8][8], int &specialMove)
             window.display();
         }
         arr[0][i] = n+1;
-        specialMove = n+3;
+        move.special_move = n+3;
     }
     for (int i = 0; i < 8; i++) if (arr[7][i] == -6) {
         arr[7][i] = -4;
@@ -104,9 +104,8 @@ void allmove(int arr[8][8], string p, vector<int> &moves)
             if ((p[p.size()-1] == '1' && arr[i][j] > 0) || (p[p.size()-1] == '2' && arr[i][j] < 0))
                 for (int x = 0; x < 8; x++) {
                     for (int y = 0; y < 8; y++) {
-                        int arr2[2][2] = {{i, j}, {x, y}};
-                        int kkk = 0;
-                        if (move_is_valid(arr, arr2, p, kkk)) {
+                        chess_move move = {0, i, j, x, y};
+                        if (move_is_valid(arr, move, p)) {
                             moves.push_back(i*1000+j*100+x*10+y);
                         }
                     }
@@ -135,7 +134,7 @@ bool is_place_safe(int arr[8][8], char p, int place[2])
 
 // checking weather a move is valid or not
 
-bool is_car_move_valid(int board[8][8], int start[2], int end[2], chess_move move)
+bool rook_move_is_valid(int board[8][8],  chess_move move)
 {
     int hori = abs(move.start_col-move.end_col);
     int vert = abs(move.start_row-move.end_row);
@@ -145,61 +144,62 @@ bool is_car_move_valid(int board[8][8], int start[2], int end[2], chess_move mov
     if (hori == 0) {
         if (move.start_row > move.end_row) {
             for (int i = move.end_row+1; i < move.start_row; i++) {
-                if (board[move.start_col][i] != 0) status = false;
+                if (board[i][move.start_col] != 0) status = false;
             }
         } else {
             for (int i = move.start_row+1; i < move.end_row; i++) {
-                if (board[move.start_col][i] != 0) status = false;
+                if (board[i][move.start_col] != 0) status = false;
             }
         }
     } else {
         if (move.start_col > move.end_col) {
             for (int i = move.end_col+1; i < move.start_col; i++) {
-                if (board[i][move.start_row] != 0) status = false;
+                if (board[move.start_row][i] != 0) status = false;
             }
         } else {
             for (int i = move.start_col+1; i < move.end_col; i++) {
-                if (board[i][move.start_row] != 0) status = false;
+                if (board[move.start_row][i] != 0) status = false;
             }
         }
     }
     return status;
 }
 
-bool is_elephant_move_valid(int arr[8][8], int start[2], int end[2])
+bool bishop_move_is_valid(int board[8][8], chess_move move)
 {
-    int hori = abs(end[1]-start[1]);
-    int vert = abs(end[0]-start[0]);
-    bool status = true;
+    int hori = abs(move.end_col-move.start_col);
+    int vert = abs(move.end_row-move.start_row);
     if ((hori != vert) || (hori == 0 && vert == 0)) return false;
-    if (start[0] > end[0] && start[1] > end[1]) {
-        for (int i = 1; i < start[0]-end[0]; i++) {
-            if (arr[end[0]+i][end[1]+i] != 0) status = false;
+
+    bool status = true;
+    if (move.start_row > move.end_row && move.start_col > move.end_col) {
+        for (int i = 1; i < move.start_row-move.end_row; i++) {
+            if (board[move.end_row+i][move.end_col+i] != 0) status = false;
         }
-    } else if (start[0] > end[0] && start[1] < end[1]) {
-        for (int i = 1; i < start[0]-end[0]; i++) {
-            if (arr[end[0]+i][end[1]-i] != 0) status = false;
+    } else if (move.start_row > move.end_row && move.start_col < move.end_col) {
+        for (int i = 1; i < move.start_row-move.end_row; i++) {
+            if (board[move.end_row+i][move.end_col-i] != 0) status = false;
         }
-    } else if (start[0] < end[0] && start[1] > end[1]) {
-        for (int i = 1; i < end[0]-start[0]; i++) {
-            if (arr[end[0]-i][end[1]+i] != 0) status = false;
+    } else if (move.start_row < move.end_row && move.start_col > move.end_col) {
+        for (int i = 1; i < move.end_row-move.start_row; i++) {
+            if (board[move.end_row-i][move.end_col+i] != 0) status = false;
         }
     } else {
-        for (int i = 1; i < end[0]-start[0]; i++) {
-            if (arr[end[0]-i][end[1]-i] != 0) status = false;
+        for (int i = 1; i < move.end_row-move.start_row; i++) {
+            if (board[move.end_row-i][move.end_col-i] != 0) status = false;
         }
     }
     return status;
 }
 
-bool check_castling(int arr[8][8], char p, int start[2], int end[2])
+bool check_castling(int board[8][8], char p, chess_move move)
 {
     if (p == '1' && player1castled) return false;
     if (p == '2' && player2castled) return false;
-    if (start[0] != end[0]) return false;
-    if (abs(start[1]-end[1]) != 2) return false;
+    if (move.start_row != move.end_row) return false;
+    if (abs(move.start_col-move.end_col) != 2) return false;
 
-    bool carMovedBefore = false, kingMovedBefore = false;
+    bool rookMovedBefore = false, kingMovedBefore = false;
     fstream fio;
     string line = "1";
     fio.open("chess.log", ios::in | ios::in);
@@ -208,24 +208,24 @@ bool check_castling(int arr[8][8], char p, int start[2], int end[2])
         if (line == "") break;
         line = line.substr(line.size()-5, 5);
         if (p == '1') {
-            if (end[1] == 6) {
+            if (move.end_col == 6) {
                 string a = line.substr(0, 2);
                 if (a == "1e") kingMovedBefore = true;
-                if (a == "1h") carMovedBefore = true;
-            } else if (end[1] == 2) {
+                if (a == "1h") rookMovedBefore = true;
+            } else if (move.end_col == 2) {
                 string a = line.substr(0, 2);
                 if (a == "1e") kingMovedBefore = true;
-                if (a == "1a") carMovedBefore = true;
+                if (a == "1a") rookMovedBefore = true;
             } else return false;
         } else {
-            if (end[1] == 6) {
+            if (move.end_col == 6) {
                 string a = line.substr(0, 2);
                 if (a == "8e") kingMovedBefore = true;
-                if (a == "8h") carMovedBefore = true;
-            } else if (end[1] == 2) {
+                if (a == "8h") rookMovedBefore = true;
+            } else if (move.end_col == 2) {
                 string a = line.substr(0, 2);
                 if (a == "8e") kingMovedBefore = true;
-                if (a == "8a") carMovedBefore = true;
+                if (a == "8a") rookMovedBefore = true;
             } else return false;
         }
     }
@@ -233,35 +233,35 @@ bool check_castling(int arr[8][8], char p, int start[2], int end[2])
 
     vector<int> v;
     bool nothingInBetween = false;
-    if (end[1] == 6) {
-        if (arr[start[0]][5] == 0 && arr[start[0]][6] == 0)
+    if (move.end_col == 6) {
+        if (board[move.start_row][5] == 0 && board[move.start_row][6] == 0)
             nothingInBetween = true;
-        v.push_back(start[0]*10000+4);
-        v.push_back(start[0]*10000+5);
-        v.push_back(start[0]*10000+6);
-        v.push_back(start[0]*10000+7);
-    } if (end[1] == 2) {
-        if (arr[start[0]][3] == 0 && arr[start[0]][2] == 0 && arr[start[0]][1] == 0)
+        v.push_back(move.start_row*10000+4);
+        v.push_back(move.start_row*10000+5);
+        v.push_back(move.start_row*10000+6);
+        v.push_back(move.start_row*10000+7);
+    } if (move.end_col == 2) {
+        if (board[move.start_row][3] == 0 && board[move.start_row][2] == 0 && board[move.start_row][1] == 0)
             nothingInBetween = true;
-        v.push_back(start[0]*10000+0);
-        v.push_back(start[0]*10000+1);
-        v.push_back(start[0]*10000+2);
-        v.push_back(start[0]*10000+3);
-        v.push_back(start[0]*10000+4);
+        v.push_back(move.start_row*10000+0);
+        v.push_back(move.start_row*10000+1);
+        v.push_back(move.start_row*10000+2);
+        v.push_back(move.start_row*10000+3);
+        v.push_back(move.start_row*10000+4);
     }
 
     bool somewhereBeingAttacked = false;
     for (int i: v) {
         int tmp[2] = {i/10000, i%10000};
-        if (!is_place_safe(arr, p, tmp)) somewhereBeingAttacked = true;
+        if (!is_place_safe(board, p, tmp)) somewhereBeingAttacked = true;
     }
 
-    if (!carMovedBefore && !kingMovedBefore && nothingInBetween && !somewhereBeingAttacked)
+    if (!rookMovedBefore && !kingMovedBefore && nothingInBetween && !somewhereBeingAttacked)
         return true;
     return false;
 }
 
-bool eat_pass_by_soldier(int arr[8][8], int start[2], int end[2], char p)
+bool check_en_passent(int board[8][8], chess_move move, char p)
 {
     fstream fio;
     string line;
@@ -275,35 +275,43 @@ bool eat_pass_by_soldier(int arr[8][8], int start[2], int end[2], char p)
     int prevEnd[2] = {7-(line[3]-'1'), line[4]-'a'};
 
     if (p == '1') {
-        bool a = arr[prevEnd[0]][prevEnd[1]] == -6 && prevEnd[1] == prevStart[1] && prevEnd[0] == prevStart[0]+2;
-        bool b = start[0] == 3 && end[0] == 2 && abs(end[1]-start[1]) == 1 && abs(start[1]-prevEnd[1]) == 1 && prevEnd[1] == end[1];
-        if (a && b) return true;
-        return false;
+        bool prevIsPawn = board[prevEnd[0]][prevEnd[1]] == -6;
+        bool prevMovedTwoSteps = prevEnd[1] == prevStart[1] && prevEnd[0] == prevStart[0]+2;
+        bool moveForwandOneStep = move.start_row == 3 && move.end_row == 2;
+        bool moveSideOneStep = abs(move.end_col-move.start_col) == 1;
+        bool stepOntoOtherPawn = prevEnd[1] == move.end_col;
+        if (prevIsPawn && prevMovedTwoSteps && moveForwandOneStep && moveSideOneStep && stepOntoOtherPawn)
+            return true;
     } else {
-        bool a = arr[prevEnd[0]][prevEnd[1]] == 6 && prevEnd[1] == prevStart[1] && prevEnd[0] == prevStart[0]-2;
-        bool b = start[0] == 4 && end[0] == 5 && abs(end[1]-start[1]) == 1 && abs(start[1]-prevEnd[1]) == 1 && prevEnd[1] == end[1];
-        if (a && b) return true;
-        return false;
+        bool prevIsPawn = board[prevEnd[0]][prevEnd[1]] == 6;
+        bool prevMovedTwoSteps = prevEnd[1] == prevStart[1] && prevEnd[0] == prevStart[0]-2;
+        bool moveForwandOneStep = move.start_row == 4 && move.end_row == 5;
+        bool moveSideOneStep = abs(move.end_col-move.start_col) == 1;
+        bool stepOntoOtherPawn = prevEnd[1] == move.end_col;
+        if (prevIsPawn && prevMovedTwoSteps && moveForwandOneStep && moveSideOneStep && stepOntoOtherPawn)
+            return true;
     }
+    return false;
 }
 
-bool is_soldier_move_valid(int arr[8][8], int start[2], int end[2], char p)
+bool pawn_move_is_valid(int board[8][8], chess_move &move, char p)
 {
     if (p == '1') {
-        if (end[1] == start[1]) {
-            if (start[0] == 6 && (end[0] == 5 || end[0] == 4) && arr[end[0]][end[1]] == 0) {
-                if (end[0] == 4 && arr[5][start[1]] == 0) return true;
-                if (end[0] == 4 && arr[5][start[1]] != 0) return false;
+        if (move.end_col == move.start_col) {
+            if (move.start_row == 6 && (move.end_row == 5 || move.end_row == 4) && board[move.end_row][move.end_col] == 0) {
+                if (move.end_row == 4 && board[5][move.start_col] == 0) return true;
+                if (move.end_row == 4 && board[5][move.start_col] != 0) return false;
                 return true;
-            } else if (end[0] - start[0] == -1 && arr[end[0]][end[1]] == 0) {
+            } else if (move.end_row - move.start_row == -1 && board[move.end_row][move.end_col] == 0) {
                 return true;
             } return false;
         } else {
-            if (start[0]-end[0] == 1 && abs(end[1]-start[1]) == 1) {
-                if (arr[end[0]][end[1]] < 0)
+            if (move.start_row-move.end_row == 1 && abs(move.end_col-move.start_col) == 1) {
+                if (board[move.end_row][move.end_col] < 0)
                     return true;
-                else if (arr[end[0]][end[1]] == 0) {
-                    if (eat_pass_by_soldier(arr, start, end, p)) {
+                else if (board[move.end_row][move.end_col] == 0) {
+                    if (check_en_passent(board, move, p)) {
+                        move.special_move = 2;
                         return true;
                     }
                     return false;
@@ -312,20 +320,21 @@ bool is_soldier_move_valid(int arr[8][8], int start[2], int end[2], char p)
             return false;
         }
     } else {
-        if (end[1] == start[1]) {
-            if (start[0] == 1 && (end[0] == 2 || end[0] == 3) && arr[end[0]][end[1]] == 0)  {
-                if (end[0] == 3 && arr[2][start[1]] == 0) return true;
-                if (end[0] == 3 && arr[2][start[1]] != 0) return false;
+        if (move.end_col == move.start_col) {
+            if (move.start_row == 1 && (move.end_row == 2 || move.end_row == 3) && board[move.end_row][move.end_col] == 0)  {
+                if (move.end_row == 3 && board[2][move.start_col] == 0) return true;
+                if (move.end_row == 3 && board[2][move.start_col] != 0) return false;
                 return true;
-            } else if (end[0] - start[0] == 1 && arr[end[0]][end[1]] == 0) {
+            } else if (move.end_row - move.start_row == 1 && board[move.end_row][move.end_col] == 0) {
                 return true;
             } return false;
         } else {
-            if (start[0]-end[0] == -1 && abs(end[1]-start[1]) == 1) {
-                if (arr[end[0]][end[1]] > 0)
+            if (move.start_row-move.end_row == -1 && abs(move.end_col-move.start_col) == 1) {
+                if (board[move.end_row][move.end_col] > 0)
                     return true;
-                else if (arr[end[0]][end[1]] == 0) {
-                    if (eat_pass_by_soldier(arr, start, end, p)) {
+                else if (board[move.end_row][move.end_col] == 0) {
+                    if (check_en_passent(board, move, p)) {
+                        move.special_move = 2;
                         return true;
                     }
                     return false;
@@ -335,84 +344,94 @@ bool is_soldier_move_valid(int arr[8][8], int start[2], int end[2], char p)
     }
 }
 
-bool move_is_valid(int arr[8][8], int arr2[2][2], string p, int &specialMove)
-{
-    int start[2] = {arr2[0][0], arr2[0][1]};
-    int end[2] = {arr2[1][0], arr2[1][1]};
-    
+
+
+bool move_is_valid(int arr[8][8], chess_move move, string p, int &specialMove)
+{   
     if (p[p.size()-1] == '1') {
-        int tmp = arr[start[0]][start[1]];
+        int tmp = arr[move.start_row][move.start_col];
         if (tmp <= 0) return false;
-        tmp = arr[end[0]][end[1]];
+        tmp = arr[move.end_row][move.end_col];
         if (tmp > 0) return false;
     } else {
-        int tmp = arr[start[0]][start[1]];
+        int tmp = arr[move.start_row][move.start_col];
         if (tmp >= 0) return false;
-        tmp = arr[end[0]][end[1]];
+        tmp = arr[move.end_row][move.end_col];
         if (tmp < 0) return false;
     }
 
     int valid = false;
-    int piece = arr[start[0]][start[1]];
+    int piece = arr[move.start_row][move.start_col];
+
+    // rook
     if (piece == 1 || piece == -1) {
-        valid = is_car_move_valid(arr, start, end, {0, start[0], start[1], end[0], end[1]});
+        valid = rook_move_is_valid(arr, move);
     }
+
+    // knight
     else if (piece == 2 || piece == -2) {
-        vector<int> v = {abs(end[0]-start[0]), abs(end[1]-start[1])};
+        vector<int> v = {abs(move.end_row - move.start_row), abs(move.end_col - move.start_col)};
         sort(v.begin(), v.end());
         if (v[0] == 1 && v[1] == 2) valid = true;
         else valid = false;
     }
+
+    // bishop
     else if (piece == 3 || piece == -3) {
-        valid = is_elephant_move_valid(arr, start, end);
+        valid = bishop_move_is_valid(arr, move);
     }
+
+    // queen
     else if (piece == 4 || piece == -4) {
-        valid = is_car_move_valid(arr, start, end, {0, start[0], start[1], end[0], end[1]}) || is_elephant_move_valid(arr, start, end);
+        valid = rook_move_is_valid(arr, move) || bishop_move_is_valid(arr, move);
     }
+
+    // king
     else if (piece == 5 || piece == -5) {
-        vector<int> v = {abs(end[0]-start[0]), abs(end[1]-start[1])};
+        vector<int> v = {abs(move.end_row - move.start_row), abs(move.end_col - move.start_col)};
         sort(v.begin(), v.end());
         if (v[0] < 2 && v[1] < 2) valid = true;
         else if (v[0] == 0 && v[1] == 2) {
-            if (p[p.size()-1] == '1' && check_castling(arr, '1', start, end)) {
+            if (p[p.size()-1] == '1' && check_castling(arr, '1', move)) {
                 valid = true;
+                move.special_move = 1;
             }
-            if (p[p.size()-1] == '2' && check_castling(arr, '2', start, end)) {
+            if (p[p.size()-1] == '2' && check_castling(arr, '2', move)) {
                 valid = true;
+                move.special_move = 1;
             }
         } else valid = false;
     }
+
+    // pawn
     else {
-        valid = is_soldier_move_valid(arr, start, end, p[p.size()-1]);
+        valid = pawn_move_is_valid(arr, move, p[p.size()-1]);
     }
 
     if (!valid) return false;
 
-    int arrrrrr[2][2] = {start[0], start[1], end[0], end[1]};
-    check_special_move(arr, arrrrrr, specialMove);
-
-    int mymy[8][8];
-    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) mymy[i][j] = arr[i][j];
-    int arrrr[2][2] = {start[0], start[1], end[0], end[1]};
-    move_piece_simpler(mymy, arrrr, p, specialMove);
+    int clonedBoard[8][8];
+    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) clonedBoard[i][j] = arr[i][j];
+    chess_move clonedMove = move;
+    move_piece_simpler(clonedBoard, clonedMove, p);
     int place[2];
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            if (p[p.size()-1] == '1' && mymy[i][j] == 5) {
+            if (p[p.size()-1] == '1' && clonedBoard[i][j] == 5) {
                 place[0] = i;
                 place[1] = j;
             }
-            if (p[p.size()-1] == '2' && mymy[i][j] == -5) {
+            if (p[p.size()-1] == '2' && clonedBoard[i][j] == -5) {
                 place[0] = i;
                 place[1] = j;
             }
         }
     }
     bool safe = false;
-    safe = is_place_safe(mymy, p[p.size()-1], place);
+    safe = is_place_safe(clonedBoard, p[p.size()-1], place);
     if (!safe) return false;
     
-    if (specialMove == 7) check_soldier_endline(arr, specialMove);
+    if (move.special_move == 2) check_soldier_endline(arr, move);
     return true;
 }
 
@@ -424,6 +443,8 @@ bool move_is_valid_simpler(int arr[8][8], int arr2[2][2], string p)
 {
     int start[2] = {arr2[0][0], arr2[0][1]};
     int end[2] = {arr2[1][0], arr2[1][1]};
+    chess_move move = {0, arr2[0][0], arr2[0][1], arr2[1][0], arr2[1][1]};
+    // cout << start[0] << ' ' << start[1] << endl;
     
     if (p[p.size()-1] == '1') {
         int tmp = arr[start[0]][start[1]];
@@ -439,36 +460,50 @@ bool move_is_valid_simpler(int arr[8][8], int arr2[2][2], string p)
 
     int valid = false;
     int piece = arr[start[0]][start[1]];
+
+    // rook
     if (piece == 1 || piece == -1) {
-        valid = is_car_move_valid(arr, start, end, {0, start[0], start[1], end[0], end[1]});
+        valid = rook_move_is_valid(arr, move);
     }
+
+    // knight
     else if (piece == 2 || piece == -2) {
-        vector<int> v = {abs(end[0]-start[0]), abs(end[1]-start[1])};
+        vector<int> v = {abs(move.end_row - move.start_row), abs(move.end_col - move.start_col)};
         sort(v.begin(), v.end());
         if (v[0] == 1 && v[1] == 2) valid = true;
         else valid = false;
     }
+
+    // bishop
     else if (piece == 3 || piece == -3) {
-        valid = is_elephant_move_valid(arr, start, end);
+        valid = bishop_move_is_valid(arr, move);
     }
+
+    // queen
     else if (piece == 4 || piece == -4) {
-        valid = is_car_move_valid(arr, start, end, {0, start[0], start[1], end[0], end[1]}) || is_elephant_move_valid(arr, start, end);
+        valid = rook_move_is_valid(arr, move) || bishop_move_is_valid(arr, move);
     }
+
+    // king
     else if (piece == 5 || piece == -5) {
-        vector<int> v = {abs(end[0]-start[0]), abs(end[1]-start[1])};
+        vector<int> v = {abs(move.end_row - move.start_row), abs(move.end_col - move.start_col)};
         sort(v.begin(), v.end());
         if (v[0] < 2 && v[1] < 2) valid = true;
         else if (v[0] == 0 && v[1] == 2) {
-            if (p[p.size()-1] == '1' && check_castling(arr, '1', start, end)) {
+            if (p[p.size()-1] == '1' && check_castling(arr, '1', move)) {
                 valid = true;
+                move.special_move = 1;
             }
-            if (p[p.size()-1] == '2' && check_castling(arr, '2', start, end)) {
+            if (p[p.size()-1] == '2' && check_castling(arr, '2', move)) {
                 valid = true;
+                move.special_move = 1;
             }
         } else valid = false;
     }
+
+    // pawn
     else {
-        valid = is_soldier_move_valid(arr, start, end, p[p.size()-1]);
+        valid = pawn_move_is_valid(arr, move, p[p.size()-1]);
     }
 
     if (!valid) return false;
@@ -491,111 +526,127 @@ bool check_special_move(int arr[8][8], int arrr[2][2], int &specialMove)
     }
 }
 
-void move_piece(int arr[8][8], int arr2[2][2], string p, int specialMove)
+void move_piece(int arr[8][8], chess_move move, string p)
 {
     fstream fio;
     fio.open("chess.log", ios::out | ios::in);
     fio.seekg(0, ios::end);
     if (p == "player1") fio << "player: ";
     if (p == "player2") fio << "computer: ";
-    if (!specialMove) {
-        if (arr[arr2[0][0]][arr2[0][1]] == 1 || arr[arr2[0][0]][arr2[0][1]] == -1)
+    if (!move.special_move) {
+        if (arr[move.start_row][move.start_col] == 1 || arr[move.start_row][move.start_col] == -1)
             fio << "Rook ";
-        if (arr[arr2[0][0]][arr2[0][1]] == 2 || arr[arr2[0][0]][arr2[0][1]] == -2)
+        if (arr[move.start_row][move.start_col] == 2 || arr[move.start_row][move.start_col] == -2)
             fio << "Knight ";
-        if (arr[arr2[0][0]][arr2[0][1]] == 3 || arr[arr2[0][0]][arr2[0][1]] == -3)
+        if (arr[move.start_row][move.start_col] == 3 || arr[move.start_row][move.start_col] == -3)
             fio << "Bishop ";
-        if (arr[arr2[0][0]][arr2[0][1]] == 4 || arr[arr2[0][0]][arr2[0][1]] == -4)
+        if (arr[move.start_row][move.start_col] == 4 || arr[move.start_row][move.start_col] == -4)
             fio << "Queen ";
-        if (arr[arr2[0][0]][arr2[0][1]] == 5 || arr[arr2[0][0]][arr2[0][1]] == -5)
+        if (arr[move.start_row][move.start_col] == 5 || arr[move.start_row][move.start_col] == -5)
             fio << "King ";
-        if (arr[arr2[0][0]][arr2[0][1]] == 6 || arr[arr2[0][0]][arr2[0][1]] == -6)
+        if (arr[move.start_row][move.start_col] == 6 || arr[move.start_row][move.start_col] == -6)
             fio << "Pawn ";
-        fio << (char)(7-arr2[0][0]+'1') << (char)(arr2[0][1]+'a') << ' ';
-        fio << (char)(7-arr2[1][0]+'1') << (char)(arr2[1][1]+'a') << '\n';
+        fio << (char)(7-move.start_row+'1') << (char)(move.start_col+'a') << ' ';
+        fio << (char)(7-move.end_row+'1') << (char)(move.end_col+'a') << '\n';
         fio.close();
-        arr[arr2[1][0]][arr2[1][1]] = arr[arr2[0][0]][arr2[0][1]];
-        arr[arr2[0][0]][arr2[0][1]] = 0;
+        arr[move.end_row][move.end_col] = arr[move.start_row][move.start_col];
+        arr[move.start_row][move.start_col] = 0;
     } else {
-        if (specialMove == 2) {
+        if (move.special_move == 1) {
             fio << "Castling ";
-            arr[arr2[1][0]][arr2[1][1]] = arr[arr2[0][0]][arr2[0][1]];
-            arr[arr2[0][0]][arr2[0][1]] = 0;
-            if (arr2[1][1] == 2) {
-                arr[arr2[0][0]][3] = arr[arr2[0][0]][0];
-                arr[arr2[0][0]][0] = 0;
-            } if (arr2[1][1] == 6) {
-                arr[arr2[0][0]][5] = arr[arr2[0][0]][7];
-                arr[arr2[0][0]][7] = 0;
+            arr[move.end_row][move.end_col] = arr[move.start_row][move.start_col];
+            arr[move.start_row][move.start_col] = 0;
+            if (move.end_col == 2) {
+                arr[move.start_row][3] = arr[move.start_row][0];
+                arr[move.start_row][0] = 0;
+            } if (move.end_col == 6) {
+                arr[move.start_row][5] = arr[move.start_row][7];
+                arr[move.start_row][7] = 0;
             }
             if (p[p.size()-1] == '1') player1castled = true;
             if (p[p.size()-1] == '2') player2castled = true;
         }
-        if (specialMove == 1) {
+        if (move.special_move == 2) {
             fio << "En passant ";
-            arr[arr2[1][0]][arr2[1][1]] = arr[arr2[0][0]][arr2[0][1]];
-            arr[arr2[0][0]][arr2[0][1]] = 0;
+            arr[move.end_row][move.end_col] = arr[move.start_row][move.start_col];
+            arr[move.start_row][move.start_col] = 0;
             if (p[p.size()-1] == '1') {
-                arr[arr2[1][0]+1][arr2[1][1]] = 0;
+                arr[move.end_row+1][move.end_col] = 0;
             } else {
-                arr[arr2[1][0]-1][arr2[1][1]] = 0;
+                arr[move.end_row-1][move.end_col] = 0;
             }
         }
-        if (specialMove == 3) {
-            if (p[p.size()-1] == '1') arr[arr2[1][0]][arr2[1][1]] = 1;
-            if (p[p.size()-1] == '2') arr[arr2[1][0]][arr2[1][1]] = -1;
-            arr[arr2[0][0]][arr2[0][1]] = 0;
+        if (move.special_move == 3) {
+            if (p[p.size()-1] == '1') arr[move.end_row][move.end_col] = 1;
+            if (p[p.size()-1] == '2') arr[move.end_row][move.end_col] = -1;
+            arr[move.start_row][move.start_col] = 0;
         }
-        if (specialMove == 4) {
-            if (p[p.size()-1] == '1') arr[arr2[1][0]][arr2[1][1]] = 2;
-            if (p[p.size()-1] == '2') arr[arr2[1][0]][arr2[1][1]] = -2;
-            arr[arr2[0][0]][arr2[0][1]] = 0;
+        if (move.special_move == 4) {
+            if (p[p.size()-1] == '1') arr[move.end_row][move.end_col] = 2;
+            if (p[p.size()-1] == '2') arr[move.end_row][move.end_col] = -2;
+            arr[move.start_row][move.start_col] = 0;
         }
-        if (specialMove == 5) {
-            if (p[p.size()-1] == '1') arr[arr2[1][0]][arr2[1][1]] = 3;
-            if (p[p.size()-1] == '2') arr[arr2[1][0]][arr2[1][1]] = -3;
-            arr[arr2[0][0]][arr2[0][1]] = 0;
+        if (move.special_move == 5) {
+            if (p[p.size()-1] == '1') arr[move.end_row][move.end_col] = 3;
+            if (p[p.size()-1] == '2') arr[move.end_row][move.end_col] = -3;
+            arr[move.start_row][move.start_col] = 0;
         }
-        if (specialMove == 6) {
-            if (p[p.size()-1] == '1') arr[arr2[1][0]][arr2[1][1]] = 4;
-            if (p[p.size()-1] == '2') arr[arr2[1][0]][arr2[1][1]] = -4;
-            arr[arr2[0][0]][arr2[0][1]] = 0;
+        if (move.special_move == 6) {
+            if (p[p.size()-1] == '1') arr[move.end_row][move.end_col] = 4;
+            if (p[p.size()-1] == '2') arr[move.end_row][move.end_col] = -4;
+            arr[move.start_row][move.start_col] = 0;
         }
-        fio << (char)(7-arr2[0][0]+'1') << (char)(arr2[0][1]+'a') << ' ';
-        fio << (char)(7-arr2[1][0]+'1') << (char)(arr2[1][1]+'a') << '\n';
+        fio << (char)(7-move.start_row+'1') << (char)(move.start_col+'a') << ' ';
+        fio << (char)(7-move.end_row+'1') << (char)(move.end_col+'a') << '\n';
         fio.close();
     }
 }
 
-void move_piece_simpler(int arr[8][8], int arr2[2][2], string p, int specialMove)
+void move_piece_simpler(int arr[8][8], chess_move move, string p)
 {
-    if (!specialMove) {
-        arr[arr2[1][0]][arr2[1][1]] = arr[arr2[0][0]][arr2[0][1]];
-        arr[arr2[0][0]][arr2[0][1]] = 0;
+    if (!move.special_move) {
+        arr[move.end_row][move.end_col] = arr[move.start_row][move.start_col];
+        arr[move.start_row][move.start_col] = 0;
     } else {
-        if (specialMove == 2) {
-            arr[arr2[1][0]][arr2[1][1]] = arr[arr2[0][0]][arr2[0][1]];
-            arr[arr2[0][0]][arr2[0][1]] = 0;
-            if (arr2[1][1] == 2) {
-                arr[arr2[0][0]][3] = arr[arr2[0][0]][0];
-                arr[arr2[0][0]][0] = 0;
-            } if (arr2[1][1] == 6) {
-                arr[arr2[0][0]][5] = arr[arr2[0][0]][7];
-                arr[arr2[0][0]][7] = 0;
+        if (move.special_move == 1) {
+            arr[move.end_row][move.end_col] = arr[move.start_row][move.start_col];
+            arr[move.start_row][move.start_col] = 0;
+            if (move.end_col == 2) {
+                arr[move.start_row][3] = arr[move.start_row][0];
+                arr[move.start_row][0] = 0;
+            } if (move.end_col == 6) {
+                arr[move.start_row][5] = arr[move.start_row][7];
+                arr[move.start_row][7] = 0;
             }
         }
-        if (specialMove == 1) {
-            arr[arr2[1][0]][arr2[1][1]] = arr[arr2[0][0]][arr2[0][1]];
-            arr[arr2[0][0]][arr2[0][1]] = 0;
+        if (move.special_move == 2) {
+            arr[move.end_row][move.end_col] = arr[move.start_row][move.start_col];
+            arr[move.start_row][move.start_col] = 0;
             if (p[p.size()-1] == '1') {
-                arr[arr2[1][0]+1][arr2[1][1]] = 0;
+                arr[move.end_row+1][move.end_col] = 0;
             } else {
-                arr[arr2[1][0]-1][arr2[1][1]] = 0;
+                arr[move.end_row-1][move.end_col] = 0;
             }
         }
-        if (specialMove == 7) {
-            arr[arr2[1][0]][arr2[1][1]] = arr[arr2[0][0]][arr2[0][1]];
-            arr[arr2[0][0]][arr2[0][1]] = 0;
+        if (move.special_move == 3) {
+            if (p[p.size()-1] == '1') arr[move.end_row][move.end_col] = 1;
+            if (p[p.size()-1] == '2') arr[move.end_row][move.end_col] = -1;
+            arr[move.start_row][move.start_col] = 0;
+        }
+        if (move.special_move == 4) {
+            if (p[p.size()-1] == '1') arr[move.end_row][move.end_col] = 2;
+            if (p[p.size()-1] == '2') arr[move.end_row][move.end_col] = -2;
+            arr[move.start_row][move.start_col] = 0;
+        }
+        if (move.special_move == 5) {
+            if (p[p.size()-1] == '1') arr[move.end_row][move.end_col] = 3;
+            if (p[p.size()-1] == '2') arr[move.end_row][move.end_col] = -3;
+            arr[move.start_row][move.start_col] = 0;
+        }
+        if (move.special_move == 6) {
+            if (p[p.size()-1] == '1') arr[move.end_row][move.end_col] = 4;
+            if (p[p.size()-1] == '2') arr[move.end_row][move.end_col] = -4;
+            arr[move.start_row][move.start_col] = 0;
         }
     }
 }
