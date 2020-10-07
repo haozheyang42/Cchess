@@ -27,16 +27,14 @@ int one_max(int arr[8][8], int currentMinscore)
 {
     int arr2[8][8];
     for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v;
+    vector<chess_move> v;
     allmove(arr2, "player2", v);
 
     int maxscore = -99999999;
-    for (int i: v) {
+    for (chess_move i: v) {
         for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) arr2[k][j] = arr[k][j];
-        int arrr[2][2] = {(i/1000)%10, (i/100)%10, (i/10)%10, i%10};
-        int spec;
-        check_special_move(arr2, arrr, spec);
-        move_piece_simpler(arr2, arrr, "player2", spec);
+        chess_move tmp = i;
+        move_piece_simpler(arr2, tmp, "player2");
 
         int sc = eval(arr2);
         maxscore = max(sc, maxscore);
@@ -57,16 +55,14 @@ int one_min(int arr[8][8], int currentMaxscore)
 {
     int arr2[8][8];
     for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v;
+    vector<chess_move> v;
     allmove(arr2, "player1", v);
 
     int minscore = 99999999;
-    for (int i: v) {
+    for (chess_move i: v) {
         for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) arr2[k][j] = arr[k][j];
-        int arrr[2][2] = {(i/1000)%10, (i/100)%10, (i/10)%10, i%10};
-        int spec;
-        check_special_move(arr2, arrr, spec);
-        move_piece_simpler(arr2, arrr, "player1", spec);
+        chess_move tmp = i;
+        move_piece_simpler(arr2, tmp, "player1");
 
         int sc = eval(arr2);
         minscore = min(minscore, sc);
@@ -87,16 +83,14 @@ int multi_max(int arr[8][8], int currentMinscore, int depth)
 {
     int arr2[8][8];
     for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v;
+    vector<chess_move> v;
     allmove(arr2, "player2", v);
 
     int maxscore = -99999999;
-    for (int i: v) {
+    for (chess_move i: v) {
         for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) arr2[k][j] = arr[k][j];
-        int arrr[2][2] = {(i/1000)%10, (i/100)%10, (i/10)%10, i%10};
-        int spec;
-        check_special_move(arr2, arrr, spec);
-        move_piece_simpler(arr2, arrr, "player2", spec);
+        chess_move tmp = i;
+        move_piece_simpler(arr2, tmp, "player2");
         
         int sc;
         if (depth == 2) sc = one_min(arr2, maxscore);
@@ -121,16 +115,14 @@ int multi_min(int arr[8][8], int currentMaxscore, int depth)
 {
     int arr2[8][8];
     for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v;
+    vector<chess_move> v;
     allmove(arr2, "player1", v);
 
     int minscore = 99999999;
-    for (int i: v) {
+    for (chess_move i: v) {
         for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) arr2[k][j] = arr[k][j];
-        int arrr[2][2] = {(i/1000)%10, (i/100)%10, (i/10)%10, i%10};
-        int spec;
-        check_special_move(arr2, arrr, spec);
-        move_piece_simpler(arr2, arrr, "player1", spec);
+        chess_move tmp = i;
+        move_piece_simpler(arr2, tmp, "player1");
 
         int sc; 
         if (depth == 2) sc = one_max(arr2, minscore);
@@ -151,22 +143,20 @@ int multi_min(int arr[8][8], int currentMaxscore, int depth)
     }
 }
 
-int computer_move(int arr[8][8], bool &specialMove)
+chess_move computer_move(int arr[8][8], bool &specialMove)
 {
     // search depth of DEPTH
     int DEPTH = 3;
     int arr2[8][8];
     for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v, w;
+    vector<chess_move> v, w;
     allmove(arr2, "player2", v);
 
     int maxscore = -99999999;
-    for (int i: v) {
+    for (chess_move i: v) {
         for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) arr2[k][j] = arr[k][j];
-        int arrr[2][2] = {(i/1000)%10, (i/100)%10, (i/10)%10, i%10};
-        int spec;
-        check_special_move(arr2, arrr, spec);
-        move_piece_simpler(arr2, arrr, "player2", spec);
+        chess_move tmp = i;
+        move_piece_simpler(arr2, tmp, "player2");
 
         int sc = multi_min(arr2, maxscore, DEPTH-1);
         if (sc == 1) continue;
@@ -180,12 +170,6 @@ int computer_move(int arr[8][8], bool &specialMove)
     int SZ = w.size();
     std::srand((unsigned) time(0));
     int result = (rand() % SZ);
-    int move = w[result];
-
-    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    int arrr[2][2] = {(move/1000)%10, (move/100)%10, (move/10)%10, move%10};
-    int spec = 0;
-    move_is_valid(arr2, arrr, "player2", spec);
-    specialMove = spec;
+    chess_move move = w[result];
     return move;
 }

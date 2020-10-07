@@ -1,15 +1,15 @@
 bool move_is_valid(int arr[8][8], chess_move move, string p);
 bool move_is_valid_simpler(int arr[8][8], chess_move move, string p);
 bool is_place_safe(int arr[8][8], char p, int place[2]);
-void allmove(int arr[8][8], string p, vector<int> &moves);
-void move_piece_simpler(int arr[8][8], chess_move move, string p, int specialMove);
+void allmove(int arr[8][8], string p, vector<chess_move> &moves);
+void move_piece_simpler(int arr[8][8], chess_move move, string p);
 bool check_special_move(int arr[8][8], chess_move move, int &specialMove);
 
 bool someone_won(int arr[8][8], string p)
 {
     int arr2[8][8];
     for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v;
+    vector<chess_move> v;
     allmove(arr2, p, v);
     if (v.size() == 0) {
         int kingpos[2];
@@ -97,7 +97,7 @@ void check_soldier_endline(int arr[8][8], chess_move move)
     }
 }
 
-void allmove(int arr[8][8], string p, vector<int> &moves)
+void allmove(int arr[8][8], string p, vector<chess_move> &moves)
 {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
@@ -106,7 +106,7 @@ void allmove(int arr[8][8], string p, vector<int> &moves)
                     for (int y = 0; y < 8; y++) {
                         chess_move move = {0, i, j, x, y};
                         if (move_is_valid(arr, move, p)) {
-                            moves.push_back(i*1000+j*100+x*10+y);
+                            moves.push_back(move);
                         }
                     }
                 }
@@ -119,11 +119,12 @@ bool is_place_safe(int arr[8][8], char p, int place[2])
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             if (p == '1') {
-                int tmp[2][2] = {{i, j}, {place[0], place[1]}};
-                if (arr[i][j] < 0 && move_is_valid_simpler(arr, tmp, "player2"))
+                chess_move tmp = {0, i, j, place[0], place[1]};
+                string str = "player2";
+                if (arr[i][j] < 0 && move_is_valid_simpler(arr, tmp, str))
                     return false;
             } else {
-                int tmp[2][2] = {{i, j}, {place[0], place[1]}};
+                chess_move tmp = {0, i, j, place[0], place[1]};
                 if (arr[i][j] > 0 && move_is_valid_simpler(arr, tmp, "player1"))
                     return false;
             }
@@ -303,13 +304,15 @@ bool pawn_move_is_valid(int board[8][8], chess_move &move, char p)
                 if (move.end_row == 4 && board[5][move.start_col] != 0) return false;
                 return true;
             } else if (move.end_row - move.start_row == -1 && board[move.end_row][move.end_col] == 0) {
+                if (move.end_row == 0) move.special_move = 7;
                 return true;
             } return false;
         } else {
             if (move.start_row-move.end_row == 1 && abs(move.end_col-move.start_col) == 1) {
-                if (board[move.end_row][move.end_col] < 0)
+                if (board[move.end_row][move.end_col] < 0) {
+                    if (move.end_row == 0) move.special_move = 7;
                     return true;
-                else if (board[move.end_row][move.end_col] == 0) {
+                } else if (board[move.end_row][move.end_col] == 0) {
                     if (check_en_passent(board, move, p)) {
                         move.special_move = 2;
                         return true;
@@ -326,13 +329,15 @@ bool pawn_move_is_valid(int board[8][8], chess_move &move, char p)
                 if (move.end_row == 3 && board[2][move.start_col] != 0) return false;
                 return true;
             } else if (move.end_row - move.start_row == 1 && board[move.end_row][move.end_col] == 0) {
+                if (move.end_row == 7) move.special_move = 7;
                 return true;
             } return false;
         } else {
             if (move.start_row-move.end_row == -1 && abs(move.end_col-move.start_col) == 1) {
-                if (board[move.end_row][move.end_col] > 0)
+                if (board[move.end_row][move.end_col] > 0) {
+                    if (move.end_row == 7) move.special_move = 7;
                     return true;
-                else if (board[move.end_row][move.end_col] == 0) {
+                } else if (board[move.end_row][move.end_col] == 0) {
                     if (check_en_passent(board, move, p)) {
                         move.special_move = 2;
                         return true;
@@ -346,7 +351,7 @@ bool pawn_move_is_valid(int board[8][8], chess_move &move, char p)
 
 
 
-bool move_is_valid(int arr[8][8], chess_move move, string p, int &specialMove)
+bool move_is_valid(int arr[8][8], chess_move move, string p)
 {   
     if (p[p.size()-1] == '1') {
         int tmp = arr[move.start_row][move.start_col];
@@ -431,7 +436,7 @@ bool move_is_valid(int arr[8][8], chess_move move, string p, int &specialMove)
     safe = is_place_safe(clonedBoard, p[p.size()-1], place);
     if (!safe) return false;
     
-    if (move.special_move == 2) check_soldier_endline(arr, move);
+    if (move.special_move == 7) check_soldier_endline(arr, move);
     return true;
 }
 
@@ -439,27 +444,22 @@ bool move_is_valid(int arr[8][8], chess_move move, string p, int &specialMove)
 
 
 
-bool move_is_valid_simpler(int arr[8][8], int arr2[2][2], string p)
+bool move_is_valid_simpler(int arr[8][8], chess_move move, string p)
 {
-    int start[2] = {arr2[0][0], arr2[0][1]};
-    int end[2] = {arr2[1][0], arr2[1][1]};
-    chess_move move = {0, arr2[0][0], arr2[0][1], arr2[1][0], arr2[1][1]};
-    // cout << start[0] << ' ' << start[1] << endl;
-    
     if (p[p.size()-1] == '1') {
-        int tmp = arr[start[0]][start[1]];
+        int tmp = arr[move.start_row][move.start_col];
         if (tmp <= 0) return false;
-        tmp = arr[end[0]][end[1]];
+        tmp = arr[move.end_row][move.end_col];
         if (tmp > 0) return false;
     } else {
-        int tmp = arr[start[0]][start[1]];
+        int tmp = arr[move.start_row][move.start_col];
         if (tmp >= 0) return false;
-        tmp = arr[end[0]][end[1]];
+        tmp = arr[move.end_row][move.end_col];
         if (tmp < 0) return false;
     }
 
     int valid = false;
-    int piece = arr[start[0]][start[1]];
+    int piece = arr[move.start_row][move.start_col];
 
     // rook
     if (piece == 1 || piece == -1) {

@@ -7,6 +7,7 @@ struct chess_move
     // 4 for pawn becomes knight
     // 5 for pawn becomes bishop
     // 6 for pawn becomes queen
+    // 7 for pwan reached endline without becomming aything
     int start_row;
     int start_col;
     int end_row;
@@ -154,11 +155,7 @@ void play_chess()
         if (turn == "player2") {
             // get computer's move req change
             bool spec = false;
-            // cin >> Cmove;
-            Cmove = computer_move(board, spec);
-            int arrr[2][2] = {(Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};
-            chess_move computerMove = {0, (Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};
-            // chess_move computerMove = computer_move(board, spec);
+            chess_move computerMove = computer_move(board, spec);
             oldPos = sf::Vector2f(computerMove.start_col*sizeOfSprite, computerMove.start_row*sizeOfSprite);
             newPos = sf::Vector2f(computerMove.end_col*sizeOfSprite, computerMove.end_row*sizeOfSprite);
             cout << Cmove << endl;
