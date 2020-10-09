@@ -143,7 +143,7 @@ int multi_min(int arr[8][8], int currentMaxscore, int depth)
     }
 }
 
-chess_move computer_move(int arr[8][8], bool &specialMove)
+chess_move computer_move(int arr[8][8])
 {
     // search depth of DEPTH
     int DEPTH = 3;

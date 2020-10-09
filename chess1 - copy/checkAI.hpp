@@ -688,6 +688,15 @@ void tied() {
 	MessageBoxA(NULL, "Ooops, Tie Game!!", "Tie Game!", MB_OK);
 }
 
+void surrender(string &turn)
+{
+    int ret = MessageBoxA(NULL, "Do you want to surrender to Haozhe Yang's algorithm?", "Surrender?", MB_YESNO);
+    if (ret == 6) {
+        turn = "nobody";
+        losted();
+    }
+}
+
 void game_ended(int arr[8][8], string turn)
 {
     if (turn == "player1" && !is_it_tie(arr, turn)) losted();

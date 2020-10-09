@@ -1,6 +1,7 @@
 struct chess_move
 {
-    int special_move; // 0 for non special
+    int special_move;
+    // 0 for non special
     // 1 for castling
     // 2 for en passent
     // 3 for pawn becomes rook
@@ -57,25 +58,13 @@ bool check(string str, string p)
     if (str.size() != 4) return false;
     if (str[0] < 'a' || str[0] > 'h' || str[2] < 'a' || str[2] > 'h') return false;
     if (str[1] < '1' || str[1] > '8' || str[3] < '1' || str[3] > '8') return false;
-    int arr[2][2] = {{str[1]-'1', str[0]-'a'}, {str[3]-'1', str[2]-'a'}};
-    chess_move move = {0, arr[0][0], arr[0][1], arr[1][0], arr[1][1]};
-    if (board[arr[0][0]][arr[0][1]] == 0) return false;
 
-    int specialMove = 0;
+    chess_move move = {0, str[1]-'1', str[0]-'a', str[3]-'1', str[2]-'a'};
+    if (board[move.start_row][move.start_col] == 0) return false;
     if (move_is_valid(board, move, p)) {
         move_piece(board, move, p);
         return true;
     } return false;
-}
-
-
-void surrender(string &turn)
-{
-    int ret = MessageBoxA(NULL, "Do you want to surrender to Haozhe Yang's algorithm?", "Surrender?", MB_YESNO);
-    if (ret == 6) {
-        turn = "nobody";
-        losted();
-    }
 }
 
 void load_position(vector<sf::Sprite> &chessFigures)
@@ -153,23 +142,20 @@ void play_chess()
 
         // computer makes a move
         if (turn == "player2") {
-            // get computer's move req change
-            bool spec = false;
-            chess_move computerMove = computer_move(board, spec);
+            // get computer's move
+            chess_move computerMove = computer_move(board);
             oldPos = sf::Vector2f(computerMove.start_col*sizeOfSprite, computerMove.start_row*sizeOfSprite);
             newPos = sf::Vector2f(computerMove.end_col*sizeOfSprite, computerMove.end_row*sizeOfSprite);
-            cout << Cmove << endl;
 
-            // move piece req change
+            // move piece
             for (int i = 0; i < chessFigures.size(); i++)
                 if (chessFigures[i].getPosition() == oldPos) n=i;
-            pieceLastMoved = n; // probably do not need
             sf::Vector2f p = newPos - oldPos;
             for (int i = 0; i < 10; i++) {
                 chessFigures[n].move(p.x/10, p.y/10);
                 display_chess_board(window, chessBoard, chessFigures);
             }
-            move_piece(board, computerMove, turn); // req change
+            move_piece(board, computerMove, turn);
 
             // check win, if not move on to player
             turn = "player1";
@@ -213,18 +199,17 @@ void play_chess()
             
             // drag
             if (e.type == sf::Event::MouseButtonPressed && e.mouseButton.button == sf::Mouse::Left) {
-                for(int i = 0; i < chessFigures.size(); i++)
-                    if (chessFigures[i].getGlobalBounds().contains(pos.x,pos.y))
-                    {
+                for (int i = 0; i < chessFigures.size(); i++)
+                    if (chessFigures[i].getGlobalBounds().contains(pos.x,pos.y)) {
+                        // get original position
                         oldPos  =  chessFigures[i].getPosition();
                         string st = to_chess_note(sf::Vector2f(oldPos.x, oldPos.y));
 
+                        // display places that the piece can move to
                         int arr2[2] = {st[1]-'1', st[0]-'a'};
                         vector<int> v;
                         for (int i = 0; i < 8; i++)
                             for (int j = 0; j < 8; j++) {
-                                int spec = 0;
-                                int arrr[2][2] = {arr2[0], arr2[1], i, j};
                                 chess_move move = {0, arr2[0], arr2[1], i, j};
                                 if (move_is_valid(board, move, "player1"))
                                     v.push_back(i*10+j);
@@ -236,7 +221,7 @@ void play_chess()
                         }
                         for (sf::Sprite i: avalibles) window.draw(i);
 
-                        if (turn == "player1" && board[st[1]-'1'][st[0]-'a'] > 0) {
+                        if (board[st[1]-'1'][st[0]-'a'] > 0) {
                             isMove=true; n=i;
                             dx=pos.x - chessFigures[i].getPosition().x;
                             dy=pos.y - chessFigures[i].getPosition().y;
