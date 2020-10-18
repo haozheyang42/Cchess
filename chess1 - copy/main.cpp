@@ -44,22 +44,16 @@ int board[8][8] =
       6, 6, 6, 6, 6, 6, 6, 6,
       1, 2, 3, 4, 5, 3, 2, 1};
 
-
-string to_chess_note(sf::Vector2f p)
+bool check(sf::Vector2f oldPos, sf::Vector2f newPos, string p)
 {
-    string s = "";
-    s += char(p.x/sizeOfSprite+97);
-    s += char(p.y/sizeOfSprite+49);
-    return s;
-}
+    if (oldPos.x/sizeOfSprite < 0 || oldPos.x/sizeOfSprite > 7) return false;
+    if (oldPos.y/sizeOfSprite < 0 || oldPos.y/sizeOfSprite > 7) return false;
+    if (newPos.x/sizeOfSprite < 0 || newPos.x/sizeOfSprite > 7) return false;
+    if (newPos.y/sizeOfSprite < 0 || newPos.y/sizeOfSprite > 7) return false;
 
-bool check(string str, string p)
-{
-    if (str.size() != 4) return false;
-    if (str[0] < 'a' || str[0] > 'h' || str[2] < 'a' || str[2] > 'h') return false;
-    if (str[1] < '1' || str[1] > '8' || str[3] < '1' || str[3] > '8') return false;
+    chess_move move = {0, int(oldPos.y/sizeOfSprite), int(oldPos.x/sizeOfSprite), 
+                int(newPos.y/sizeOfSprite), int(newPos.x/sizeOfSprite)};
 
-    chess_move move = {0, str[1]-'1', str[0]-'a', str[3]-'1', str[2]-'a'};
     if (board[move.start_row][move.start_col] == 0) return false;
     if (move_is_valid(board, move, p)) {
         move_piece(board, move, p);
@@ -90,6 +84,8 @@ void load_position(vector<sf::Sprite> &chessFigures)
             k++;
         }
 }
+
+// change the way of space being pressed, if some pieces were eaten.
 
 void play_chess()
 {
@@ -124,7 +120,6 @@ void play_chess()
 
     int Cmove;
     int pieceLastMoved;
-    bool clickedCorrectly = true;
     string turn = "player1";
     chess_move computerMove;
 
@@ -143,7 +138,7 @@ void play_chess()
         // computer makes a move
         if (turn == "player2") {
             // get computer's move
-            chess_move computerMove = computer_move(board);
+            computerMove = computer_move(board);
             oldPos = sf::Vector2f(computerMove.start_col*sizeOfSprite, computerMove.start_row*sizeOfSprite);
             newPos = sf::Vector2f(computerMove.end_col*sizeOfSprite, computerMove.end_row*sizeOfSprite);
 
@@ -168,31 +163,24 @@ void play_chess()
 
         // game on going
         while (turn == "player1" && window.pollEvent(e)) {
-            // previous move req change
+            // previous move req change into function
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                // get the preious move
+                oldPos = sf::Vector2f(computerMove.start_col*sizeOfSprite, computerMove.start_row*sizeOfSprite);
+                newPos = sf::Vector2f(computerMove.end_col*sizeOfSprite, computerMove.end_row*sizeOfSprite);
+                for (int i = 0; i < chessFigures.size(); i++)
+                    if (chessFigures[i].getPosition() == newPos) n = i;
 
-                // get the preious move req change
-
-                /*chess_move lastMove = {0, (Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};*/
-                
-                int arrr[2][2] = {(Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};
-                oldPos = sf::Vector2f(arrr[0][1]*sizeOfSprite,arrr[0][0]*sizeOfSprite);
-                newPos = sf::Vector2f(arrr[1][1]*sizeOfSprite,arrr[1][0]*sizeOfSprite);
-
-                // move the piece req change
-                for(int i = 0; i< chessFigures.size(); i++) if (chessFigures[i].getPosition()==newPos) n=i;
+                // move the piece
                 sf::Vector2f p = oldPos - newPos;
                 
-                long double length = 7*sqrt(pow(oldPos.x-newPos.x, 2)+pow(oldPos.y-newPos.y, 2))/sizeOfSprite;
-                for(int k=0;k<length;k++)
-                {
-                    chessFigures[n].move(p.x/length, p.y/length); 
+                for (int k = 0; k < 10; k++) {
+                    chessFigures[n].move(p.x/10, p.y/10); 
                     display_chess_board(window, chessBoard, chessFigures);
                 }
                 p = newPos - oldPos;
-                for(int k=0;k<length;k++)
-                {
-                    chessFigures[n].move(p.x/length, p.y/length); 
+                for (int k = 0; k < 10; k++) {
+                    chessFigures[n].move(p.x/10, p.y/10); 
                     display_chess_board(window, chessBoard, chessFigures);
                 }
             }
@@ -202,15 +190,14 @@ void play_chess()
                 for (int i = 0; i < chessFigures.size(); i++)
                     if (chessFigures[i].getGlobalBounds().contains(pos.x,pos.y)) {
                         // get original position
-                        oldPos  =  chessFigures[i].getPosition();
-                        string st = to_chess_note(sf::Vector2f(oldPos.x, oldPos.y));
+                        oldPos = chessFigures[i].getPosition();
 
                         // display places that the piece can move to
-                        int arr2[2] = {st[1]-'1', st[0]-'a'};
+                        int arr[2] = {int(oldPos.y)/sizeOfSprite, int(oldPos.x)/sizeOfSprite};
                         vector<int> v;
                         for (int i = 0; i < 8; i++)
                             for (int j = 0; j < 8; j++) {
-                                chess_move move = {0, arr2[0], arr2[1], i, j};
+                                chess_move move = {0, arr[0], arr[1], i, j};
                                 if (move_is_valid(board, move, "player1"))
                                     v.push_back(i*10+j);
                             }
@@ -219,25 +206,24 @@ void play_chess()
                             tmp.setPosition(sizeOfSprite*(i%10), sizeOfSprite*(i/10));
                             avalibles.push_back(tmp);
                         }
-                        for (sf::Sprite i: avalibles) window.draw(i);
 
-                        if (board[st[1]-'1'][st[0]-'a'] > 0) {
-                            isMove=true; n=i;
+                        if (board[arr[0]][arr[1]] > 0) {
+                            isMove = true; n =i;
                             dx=pos.x - chessFigures[i].getPosition().x;
                             dy=pos.y - chessFigures[i].getPosition().y;
                         }
                     }
-                clickedCorrectly = isMove;
             }
 
             // drop
             if (e.type == sf::Event::MouseButtonReleased && e.mouseButton.button == sf::Mouse::Left) {
                 avalibles.clear();
-                isMove=false;
-                sf::Vector2f p = chessFigures[n].getPosition() + sf::Vector2f(sizeOfSprite/2,sizeOfSprite/2);
-                newPos = sf::Vector2f( sizeOfSprite*int(p.x/sizeOfSprite), sizeOfSprite*int(p.y/sizeOfSprite) );
-                str = to_chess_note(oldPos)+to_chess_note(newPos);
-                if (check(str, turn) && clickedCorrectly) {
+                // center of sprite
+                sf::Vector2f p = chessFigures[n].getPosition() + sf::Vector2f(sizeOfSprite/2, sizeOfSprite/2);
+                // put sprite into grid
+                newPos = sf::Vector2f(sizeOfSprite*int(p.x/sizeOfSprite), sizeOfSprite*int(p.y/sizeOfSprite));
+                if (check(oldPos, newPos, turn) && isMove) {
+                    isMove = false;
                     turn = "player2";
                     if (someone_won(board, turn)) {
                         game_ended(board, turn);
@@ -245,6 +231,7 @@ void play_chess()
                         continue;
                     }
                 }
+                isMove=false;
             }
 
             // surrender
@@ -261,25 +248,24 @@ void play_chess()
 
             // last move
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-                int arrr[2][2] = {(Cmove/1000)%10, (Cmove/100)%10, (Cmove/10)%10, Cmove%10};
-                oldPos = sf::Vector2f(arrr[0][1]*sizeOfSprite,arrr[0][0]*sizeOfSprite);
-                newPos = sf::Vector2f(arrr[1][1]*sizeOfSprite,arrr[1][0]*sizeOfSprite);
-                for(int i = 0; i < chessFigures.size(); i++) if (chessFigures[i].getPosition()==newPos) n=i;
+                // get the preious move
+                oldPos = sf::Vector2f(computerMove.start_col*sizeOfSprite, computerMove.start_row*sizeOfSprite);
+                newPos = sf::Vector2f(computerMove.end_col*sizeOfSprite, computerMove.end_row*sizeOfSprite);
+                for (int i = 0; i < chessFigures.size(); i++)
+                    if (chessFigures[i].getPosition() == newPos) n = i;
+
+                // move the piece
                 sf::Vector2f p = oldPos - newPos;
                 
-                p = oldPos - newPos;
-                long double length = sqrt(pow(oldPos.x-newPos.x, 2)+pow(oldPos.y-newPos.y, 2))/sizeOfSprite;
-                for(int k=0;k<length;k++)
-                {
-                    chessFigures[n].move(p.x/length, p.y/length); 
+                for (int k = 0; k < 10; k++) {
+                    chessFigures[n].move(p.x/10, p.y/10); 
                     display_chess_board(window, chessBoard, chessFigures);
                 }
                 p = newPos - oldPos;
-                for(int k=0;k<length;k++)
-                {
-                    chessFigures[n].move(p.x/length, p.y/length); 
+                for (int k = 0; k < 10; k++) {
+                    chessFigures[n].move(p.x/10, p.y/10); 
                     display_chess_board(window, chessBoard, chessFigures);
-                }    
+                }
             }
         }
 
@@ -292,7 +278,7 @@ void play_chess()
         }
 
         // draw
-        display_chess_board_with_avalibles(window, chessBoard, chessFigures, avalibles)
+        display_chess_board_with_avalibles(window, chessBoard, chessFigures, avalibles);
     }
 }
 
