@@ -34,17 +34,7 @@ using namespace std;
 	for (sf::Sprite i: avalibles) window.draw(i); \
 	window.display();
 
-int board[8][8] =
-    {-1,-2,-3,-4,-5,-3,-2,-1,
-     -6,-6,-6,-6,-6,-6,-6,-6,
-      0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0,
-      6, 6, 6, 6, 6, 6, 6, 6,
-      1, 2, 3, 4, 5, 3, 2, 1};
-
-bool check(sf::Vector2f oldPos, sf::Vector2f newPos, string p)
+bool check(int board[8][8], sf::Vector2f oldPos, sf::Vector2f newPos, string p)
 {
     if (oldPos.x/sizeOfSprite < 0 || oldPos.x/sizeOfSprite > 7) return false;
     if (oldPos.y/sizeOfSprite < 0 || oldPos.y/sizeOfSprite > 7) return false;
@@ -61,7 +51,7 @@ bool check(sf::Vector2f oldPos, sf::Vector2f newPos, string p)
     } return false;
 }
 
-void load_position(vector<sf::Sprite> &chessFigures)
+void load_position(int board[8][8] ,vector<sf::Sprite> &chessFigures)
 {
     int k = 0;
     for (int i = 0; i < 8; i++)
@@ -87,8 +77,9 @@ void load_position(vector<sf::Sprite> &chessFigures)
 
 // change the way of space being pressed, if some pieces were eaten.
 
-void play_chess()
+void play_chess(int board[8][8])
 {
+    
     // render window
     sf::RenderWindow window(sf::VideoMode(sizeOfSprite*8, sizeOfSprite*8), "Haozhe Yang's Chess Game!");
 
@@ -101,7 +92,7 @@ void play_chess()
     // load in the chess figures
     vector<sf::Sprite> chessFigures(32);
     for(int i=0;i<32;i++) chessFigures[i].setTexture(t1);
-    load_position(chessFigures);
+    load_position(board, chessFigures);
 
     // load in board
     sf::Sprite chessBoard(t2);
@@ -138,7 +129,20 @@ void play_chess()
         // computer makes a move
         if (turn == "player2") {
             // get computer's move
-            computerMove = computer_move(board);
+            try {
+                // computerMove = computer_move(board);
+                int* ptr = NULL;
+                *ptr = 1;
+            } catch (...) {
+                // cout << "Caught " << excp << '\n';
+                cout << "please enter an input for the computer\n";
+                string tmp;
+                cin >> tmp;
+            }
+            // cout << computerMove.special_move << endl;
+            // cout << computerMove.start_row << ' ' << computerMove.start_col << ' ';
+            // cout << computerMove.end_row << ' ' << computerMove.end_col << ' ';
+            
             oldPos = sf::Vector2f(computerMove.start_col*sizeOfSprite, computerMove.start_row*sizeOfSprite);
             newPos = sf::Vector2f(computerMove.end_col*sizeOfSprite, computerMove.end_row*sizeOfSprite);
 
@@ -222,7 +226,7 @@ void play_chess()
                 sf::Vector2f p = chessFigures[n].getPosition() + sf::Vector2f(sizeOfSprite/2, sizeOfSprite/2);
                 // put sprite into grid
                 newPos = sf::Vector2f(sizeOfSprite*int(p.x/sizeOfSprite), sizeOfSprite*int(p.y/sizeOfSprite));
-                if (check(oldPos, newPos, turn) && isMove) {
+                if (check(board, oldPos, newPos, turn) && isMove) {
                     isMove = false;
                     turn = "player2";
                     if (someone_won(board, turn)) {
@@ -271,7 +275,7 @@ void play_chess()
 
         if (isMove) chessFigures[n].setPosition(pos.x-dx,pos.y-dy);
         else {
-            load_position(chessFigures);
+            load_position(board, chessFigures);
             int counter = 0;
             for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) if (board[i][j]) counter++;
             if (counter < chessFigures.size()) chessFigures.pop_back();
@@ -288,6 +292,15 @@ int main()
 	// HWND hWnd = GetConsoleWindow();
     // ShowWindow(hWnd, SW_HIDE);
 
-	// play chess
-	play_chess();
+    // play chess
+	int board[8][8] =
+      {-1,-2,-3,-4,-5,-3,-2,-1,
+       -6,-6,-6,-6,-6,-6,-6,-6,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        6, 6, 6, 6, 6, 6, 6, 6,
+        1, 2, 3, 4, 5, 3, 2, 1};
+	play_chess(board);
 }

@@ -5,52 +5,6 @@ void allmove(int board[8][8], string p, vector<chess_move> &moves);
 void move_piece_simpler(int board[8][8], chess_move move, string p);
 
 
-void check_soldier_endline(int board[8][8], chess_move &move)
-{
-    const int size = 56;
-    sf::Sprite fi[4];
-    sf::RenderWindow window(sf::VideoMode(size*4, size), "Choose your piece");
-    sf::Texture t3;
-    t3.loadFromFile("figures.png");
-    for(int j=0;j<4;j++) fi[j].setTexture(t3);
-    fi[0].setTextureRect( sf::IntRect(0,size,size,size) );
-    fi[0].setPosition(0,0);
-    fi[1].setTextureRect( sf::IntRect(size,size,size,size) );
-    fi[1].setPosition(size,0);
-    fi[2].setTextureRect( sf::IntRect(2*size,size,size,size) );
-    fi[2].setPosition(2*size,0);
-    fi[3].setTextureRect( sf::IntRect(3*size,size,size,size) );
-    fi[3].setPosition(3*size,0);
-    int n;
-    while (window.isOpen())
-    {
-        sf::Vector2i pos = sf::Mouse::getPosition(window);
-        sf::Event e;
-        while (window.pollEvent(e))
-        {
-            if (e.type == sf::Event::MouseButtonPressed && e.mouseButton.button == sf::Mouse::Left) {
-                for(int j=0;j<4;j++)
-                    if (fi[j].getGlobalBounds().contains(pos.x,pos.y))
-                        n = j;
-                window.close();
-            }
-        }
-        
-        window.clear();
-        for(int j=0;j<4;j++) window.draw(fi[j]);
-        window.display();
-    }
-    move.special_move = n+3;
-
-    for (int i = 0; i < 8; i++) if (board[7][i] == -6) {
-        board[7][i] = -4;
-    }
-}
-
-
-
-
-
 // checking weather a move is valid or not -- 
 bool is_place_safe(int board[8][8], string p, int place[2])
 {
@@ -437,6 +391,48 @@ bool move_is_valid_simpler(int board[8][8], chess_move move, string p)
 
 
 // moving piece functions -- done
+void check_soldier_endline(int board[8][8], chess_move &move)
+{
+    const int size = 56;
+    sf::Sprite fi[4];
+    sf::RenderWindow window(sf::VideoMode(size*4, size), "Choose your piece");
+    sf::Texture t3;
+    t3.loadFromFile("figures.png");
+    for(int j=0;j<4;j++) fi[j].setTexture(t3);
+    fi[0].setTextureRect( sf::IntRect(0,size,size,size) );
+    fi[0].setPosition(0,0);
+    fi[1].setTextureRect( sf::IntRect(size,size,size,size) );
+    fi[1].setPosition(size,0);
+    fi[2].setTextureRect( sf::IntRect(2*size,size,size,size) );
+    fi[2].setPosition(2*size,0);
+    fi[3].setTextureRect( sf::IntRect(3*size,size,size,size) );
+    fi[3].setPosition(3*size,0);
+    int n;
+    while (window.isOpen())
+    {
+        sf::Vector2i pos = sf::Mouse::getPosition(window);
+        sf::Event e;
+        while (window.pollEvent(e))
+        {
+            if (e.type == sf::Event::MouseButtonPressed && e.mouseButton.button == sf::Mouse::Left) {
+                for(int j=0;j<4;j++)
+                    if (fi[j].getGlobalBounds().contains(pos.x,pos.y))
+                        n = j;
+                window.close();
+            }
+        }
+        
+        window.clear();
+        for(int j=0;j<4;j++) window.draw(fi[j]);
+        window.display();
+    }
+    move.special_move = n+3;
+
+    for (int i = 0; i < 8; i++) if (board[7][i] == -6) {
+        board[7][i] = -4;
+    }
+}
+
 void move_piece(int board[8][8], chess_move move, string p)
 {
     fstream fio;
@@ -583,11 +579,11 @@ void allmove(int board[8][8], string p, vector<chess_move> &moves)
     for (chess_move i: moves) {
         if (i.special_move == 7) {
             i.special_move = 6;
-        }
-        chess_move j = i;
-        for (int k = 3; k < 6; k++) {
-            j.special_move = k;
-            moves.push_back(j);
+            chess_move j = i;
+            for (int k = 3; k < 6; k++) {
+                j.special_move = k;
+                moves.push_back(j);
+            }
         }
     }
 }
