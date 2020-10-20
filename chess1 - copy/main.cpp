@@ -77,7 +77,7 @@ void load_position(int board[8][8] ,vector<sf::Sprite> &chessFigures)
 
 // change the way of space being pressed, if some pieces were eaten.
 
-void play_chess(int board[8][8])
+void play_chess(int board[8][8], string turn)
 {
     
     // render window
@@ -111,14 +111,14 @@ void play_chess(int board[8][8])
 
     int Cmove;
     int pieceLastMoved;
-    string turn = "player1";
+    
     chess_move computerMove;
 
 
     // clear everything in chess.log
-    fstream fio;
-    fio.open("chess.log", ios::trunc | ios::in | ios::out);
-    fio.close();
+    fstream fout;
+    fout.open("chess.log", ios::trunc | ios::out);
+    fout.close();
 
     window.setFramerateLimit(60);
     while (window.isOpen())
@@ -129,16 +129,16 @@ void play_chess(int board[8][8])
         // computer makes a move
         if (turn == "player2") {
             // get computer's move
-            try {
-                // computerMove = computer_move(board);
-                int* ptr = NULL;
-                *ptr = 1;
-            } catch (...) {
-                // cout << "Caught " << excp << '\n';
-                cout << "please enter an input for the computer\n";
-                string tmp;
-                cin >> tmp;
-            }
+            // try {
+            //     computerMove = computer_move(board);
+            // } catch (...) {
+            //     computerMove = {0, 0, 0, 0, 0};
+            //     while (!move_is_valid(board, computerMove, "player2")) {
+            //         cout << "The computer AI has crashed! Please enter an input for the computer\n";
+            //         cin >> computerMove.start_row >> computerMove.start_col >> computerMove.end_row >> computerMove.end_col;
+            //     }
+            // }
+            computerMove = computer_move(board);
             // cout << computerMove.special_move << endl;
             // cout << computerMove.start_row << ' ' << computerMove.start_col << ' ';
             // cout << computerMove.end_row << ' ' << computerMove.end_col << ' ';
@@ -302,5 +302,16 @@ int main()
         0, 0, 0, 0, 0, 0, 0, 0,
         6, 6, 6, 6, 6, 6, 6, 6,
         1, 2, 3, 4, 5, 3, 2, 1};
-	play_chess(board);
+
+    // int board[8][8] =
+    //   { 0, 0, 0, 0, 0, 2, 0, 0,
+    //     0, 0, 0, 0, 0, 0, 0, 0,
+    //     0, 0, 0, 0, 0, 0, 0, 0,
+    //     0, 0, 0, 0, 0, 0, 0, 4,
+    //     0,-5, 0, 0, 0, 0, 4, 0,
+    //     0, 0, 0, 0, 0, 0, 0, 0,
+    //     0, 0, 0, 0, 0, 5, 0, 0,
+    //     0, 0, 0, 0, 0, 0, 0, 0};
+    string turn = "player1";
+	play_chess(board, turn);
 }

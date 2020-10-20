@@ -145,9 +145,6 @@ int multi_min(int board[8][8], int currentMaxscore, int depth)
 
 chess_move computer_move(int board[8][8]) throw (char*)
 {
-    cout << "adsd\n";
-    int* ptr = NULL;
-    *ptr = 1;
     // search depth of DEPTH
     int DEPTH = 3;
     int tmpboard[8][8];
@@ -174,6 +171,5 @@ chess_move computer_move(int board[8][8]) throw (char*)
     std::srand((unsigned) time(0));
     int result = (rand() % SZ);
     chess_move move = w[result];
-    // throw "crashed";
     return move;
 }

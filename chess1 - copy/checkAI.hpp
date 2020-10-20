@@ -90,11 +90,11 @@ bool check_castling(int board[8][8], string p, chess_move move)
     if (abs(move.start_col-move.end_col) != 2) return false;
 
     bool rookMovedBefore = false, kingMovedBefore = false;
-    fstream fio;
-    string line = "1";
-    fio.open("chess.log", ios::in | ios::in);
+    fstream fin;
+    fin.open("chess.log", ios::in);
+    string line;
     while (true) {
-        getline(fio, line);
+        getline(fin, line);
         if (line == "") break;
         line = line.substr(line.size()-5, 5);
         if (p == "player1") {
@@ -119,7 +119,7 @@ bool check_castling(int board[8][8], string p, chess_move move)
             } else return false;
         }
     }
-    fio.close();
+    fin.close();
 
     vector<int> v;
     bool nothingInBetween = false;
@@ -153,12 +153,12 @@ bool check_castling(int board[8][8], string p, chess_move move)
 
 bool check_en_passent(int board[8][8], chess_move &move, string p)
 {
-    fstream fio;
+    fstream fin;
     string line;
-    fio.open("chess.log", ios::in);
-    fio.seekg(-7, ios::end);
-    getline(fio, line);
-    fio.close();
+    fin.open("chess.log", ios::in);
+    fin.seekg(-7, ios::end);
+    getline(fin, line);
+    fin.close();
 
     if (line[2] != ' ') return false;
     int prevStart[2] = {7-(line[0]-'1'), line[1]-'a'};
@@ -287,7 +287,7 @@ bool move_is_valid(int board[8][8], chess_move &move, string p)
         vector<int> v = {abs(move.end_row - move.start_row), abs(move.end_col - move.start_col)};
         sort(v.begin(), v.end());
         if (v[0] < 2 && v[1] < 2) valid = true;
-        else if (v[0] == 0 && v[1] == 2) {
+        else if (v[0] == 0 && v[1] == 2 && move.start_row == move.end_row && move.start_col == 4) {
             if (check_castling(board, p, move)) {
                 valid = true;
                 move.special_move = 1;
@@ -435,32 +435,32 @@ void check_soldier_endline(int board[8][8], chess_move &move)
 
 void move_piece(int board[8][8], chess_move move, string p)
 {
-    fstream fio;
-    fio.open("chess.log", ios::out | ios::in);
-    fio.seekg(0, ios::end);
-    if (p == "player1") fio << "player: ";
-    if (p == "player2") fio << "computer: ";
+    fstream fout;
+    fout.open("chess.log", ios::app | ios::out);
+    fout.seekg(0, ios::end);
+    if (p == "player1") fout << "player: ";
+    if (p == "player2") fout << "computer: ";
     if (!move.special_move) {
         if (board[move.start_row][move.start_col] == 1 || board[move.start_row][move.start_col] == -1)
-            fio << "Rook ";
+            fout << "Rook ";
         if (board[move.start_row][move.start_col] == 2 || board[move.start_row][move.start_col] == -2)
-            fio << "Knight ";
+            fout << "Knight ";
         if (board[move.start_row][move.start_col] == 3 || board[move.start_row][move.start_col] == -3)
-            fio << "Bishop ";
+            fout << "Bishop ";
         if (board[move.start_row][move.start_col] == 4 || board[move.start_row][move.start_col] == -4)
-            fio << "Queen ";
+            fout << "Queen ";
         if (board[move.start_row][move.start_col] == 5 || board[move.start_row][move.start_col] == -5)
-            fio << "King ";
+            fout << "King ";
         if (board[move.start_row][move.start_col] == 6 || board[move.start_row][move.start_col] == -6)
-            fio << "Pawn ";
-        fio << (char)(7-move.start_row+'1') << (char)(move.start_col+'a') << ' ';
-        fio << (char)(7-move.end_row+'1') << (char)(move.end_col+'a') << '\n';
-        fio.close();
+            fout << "Pawn ";
+        fout << (char)(7-move.start_row+'1') << (char)(move.start_col+'a') << ' ';
+        fout << (char)(7-move.end_row+'1') << (char)(move.end_col+'a') << '\n';
+        fout.close();
         board[move.end_row][move.end_col] = board[move.start_row][move.start_col];
         board[move.start_row][move.start_col] = 0;
     } else {
         if (move.special_move == 1) {
-            fio << "Castling ";
+            fout << "Castling ";
             board[move.end_row][move.end_col] = board[move.start_row][move.start_col];
             board[move.start_row][move.start_col] = 0;
             if (move.end_col == 2) {
@@ -474,7 +474,7 @@ void move_piece(int board[8][8], chess_move move, string p)
             if (p == "player2") player2castled = true;
         }
         if (move.special_move == 2) {
-            fio << "En passant ";
+            fout << "En passant ";
             board[move.end_row][move.end_col] = board[move.start_row][move.start_col];
             board[move.start_row][move.start_col] = 0;
             if (p == "player1") {
@@ -506,9 +506,9 @@ void move_piece(int board[8][8], chess_move move, string p)
             if (p == "player2") board[move.end_row][move.end_col] = -4;
             board[move.start_row][move.start_col] = 0;
         }
-        fio << (char)(7-move.start_row+'1') << (char)(move.start_col+'a') << ' ';
-        fio << (char)(7-move.end_row+'1') << (char)(move.end_col+'a') << '\n';
-        fio.close();
+        fout << (char)(7-move.start_row+'1') << (char)(move.start_col+'a') << ' ';
+        fout << (char)(7-move.end_row+'1') << (char)(move.end_col+'a') << '\n';
+        fout.close();
     }
 }
 
@@ -611,20 +611,20 @@ bool someone_won(int board[8][8], string p)
             }
         }
         if (is_place_safe(board, p, kingpos)) {
-            fstream fio;
-            fio.open("chess.log", ios::out | ios::in);
-            fio.seekg(0, ios::end);
-            fio << "Tie game!" << endl;
-            fio.close();
+            fstream fout;
+            fout.open("chess.log", ios::app | ios::out);
+            fout.seekg(0, ios::end);
+            fout << "Tie game!" << endl;
+            fout.close();
         } else {
             if (p == "player1") p = "player2";
             else p = "player1";
-            fstream fio;
-            fio.open("chess.log", ios::out | ios::in);
-            fio.seekg(0, ios::end);
-            if (p == "player1") fio << "player won!" << endl;
-            else fio << "computer won!"<< endl;
-            fio.close();
+            fstream fout;
+            fout.open("chess.log", ios::app | ios::out);
+            fout.seekg(0, ios::end);
+            if (p == "player1") fout << "player won!" << endl;
+            else fout << "computer won!"<< endl;
+            fout.close();
         }
         return true;
     } else {
