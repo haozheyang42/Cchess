@@ -371,7 +371,7 @@ bool move_is_valid_simpler(int board[8][8], chess_move move, string p)
         vector<int> v = {abs(move.end_row - move.start_row), abs(move.end_col - move.start_col)};
         sort(v.begin(), v.end());
         if (v[0] < 2 && v[1] < 2) valid = true;
-        else if (v[0] == 0 && v[1] == 2) {
+        else if (v[0] == 0 && v[1] == 2 && move.start_row == move.end_row && move.start_col == 4) {
             if (check_castling(board, p, move)) {
                 valid = true;
                 move.special_move = 1;

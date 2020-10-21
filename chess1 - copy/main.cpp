@@ -288,9 +288,9 @@ void play_chess(int board[8][8], string turn)
 
 int main()
 {
-    // // hide console
-	// HWND hWnd = GetConsoleWindow();
-    // ShowWindow(hWnd, SW_HIDE);
+    // hide console
+	HWND hWnd = GetConsoleWindow();
+    ShowWindow(hWnd, SW_HIDE);
 
     // play chess
 	int board[8][8] =
@@ -304,13 +304,13 @@ int main()
         1, 2, 3, 4, 5, 3, 2, 1};
 
     // int board[8][8] =
-    //   { 0, 0, 0, 0, 0, 2, 0, 0,
+    //   { 0, 0, 0, 0, 0, 0, 0, 0,
     //     0, 0, 0, 0, 0, 0, 0, 0,
     //     0, 0, 0, 0, 0, 0, 0, 0,
-    //     0, 0, 0, 0, 0, 0, 0, 4,
-    //     0,-5, 0, 0, 0, 0, 4, 0,
+    //     0, 0, 0,-6, 0, 0, 0,-1,
+    //     0, 0, 0, 0, 0, 0,-2, 0,
     //     0, 0, 0, 0, 0, 0, 0, 0,
-    //     0, 0, 0, 0, 0, 5, 0, 0,
+    //     5, 0, 0, 0,-5, 0, 0,-6,
     //     0, 0, 0, 0, 0, 0, 0, 0};
     string turn = "player1";
 	play_chess(board, turn);
