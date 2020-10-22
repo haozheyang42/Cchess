@@ -1,7 +1,9 @@
+int DEPTH = 3;
 #include <sfml/graphics.hpp>
 #include <sys/time.h>
 #include <windows.h>
 #include <time.h>
 #include <bits/stdc++.h>
 #include "checkAI.hpp"
-#include "algorithms/algorithm(version 1.8.2).hpp"
+#include "algorithm(generation 1).hpp"
+#include "chess.hpp"

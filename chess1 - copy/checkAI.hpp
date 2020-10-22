@@ -514,7 +514,7 @@ void move_piece(int board[8][8], chess_move move, string p)
 
 void move_piece_simpler(int board[8][8], chess_move move, string p)
 {
-    if (!move.special_move) {
+    if (!move.special_move || move.special_move == 7) {
         board[move.end_row][move.end_col] = board[move.start_row][move.start_col];
         board[move.start_row][move.start_col] = 0;
     } else {

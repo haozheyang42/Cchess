@@ -143,9 +143,9 @@ int multi_min(int board[8][8], int currentMaxscore, int depth)
     }
 }
 
-chess_move computer_move(int board[8][8]) throw (char*)
+chess_move computer_move(int board[8][8])
 {
-    // search depth of DEPTH
+    // search depth of DEPTH (DEPTH >= 3)
     int DEPTH = 3;
     int tmpboard[8][8];
     for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) tmpboard[i][j] = board[i][j];

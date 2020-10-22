@@ -236,26 +236,33 @@ int multi_min(int board[8][8], int currentMaxscore, int depth)
 
 chess_move computer_move(int board[8][8])
 {
-    // search depth of DEPTH (DEPTH >= 3)
-    int DEPTH = 3;
+    // search depth of DEPTH
     int tmpboard[8][8];
     for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) tmpboard[i][j] = board[i][j];
     vector<chess_move> v, w;
     allmove(tmpboard, "player2", v);
 
-    int maxscore = -99999999;
-    for (chess_move i: v) {
-        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) tmpboard[k][j] = board[k][j];
-        chess_move tmp = i;
-        move_piece_simpler(tmpboard, tmp, "player2");
+    if (DEPTH >= 1) {
+        int maxscore = -99999999;
+        for (chess_move i: v) {
+            for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) tmpboard[k][j] = board[k][j];
+            chess_move tmp = i;
+            move_piece_simpler(tmpboard, tmp, "player2");
 
-        int sc = multi_min(tmpboard, maxscore, DEPTH-1);
-        if (sc == 1) continue;
-        if (sc != maxscore) {
-            maxscore = sc;
-            w.clear();
+            int sc;
+            if (DEPTH >= 3) sc = multi_min(tmpboard, maxscore, DEPTH-1);
+            if (DEPTH == 2) sc = one_min(tmpboard, maxscore);
+            if (DEPTH == 1) sc = eval(tmpboard);
+
+            if (sc == 1) continue;
+            if (sc != maxscore) {
+                maxscore = sc;
+                w.clear();
+            }
+            w.push_back(i);
         }
-        w.push_back(i);
+    } else {
+        for (chess_move i: v) w.push_back(i);
     }
 
     int SZ = w.size();
