@@ -576,10 +576,10 @@ void allmove(int board[8][8], string p, vector<chess_move> &moves)
                 }
         }
     }
-    for (chess_move i: moves) {
-        if (i.special_move == 7) {
-            i.special_move = 6;
-            chess_move j = i;
+    for (int i = 0; i < moves.size(); i++) {
+        if (moves[i].special_move == 7) {
+            moves[i].special_move = 6;
+            chess_move j = moves[i];
             for (int k = 3; k < 6; k++) {
                 j.special_move = k;
                 moves.push_back(j);

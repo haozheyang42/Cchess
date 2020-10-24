@@ -4,6 +4,7 @@ int DEPTH = 3;
 #include <windows.h>
 #include <time.h>
 #include <bits/stdc++.h>
+#include <unistd.h>
 #include "checkAI.hpp"
 #include "algorithm(generation 1).hpp"
 #include "chess.hpp"
