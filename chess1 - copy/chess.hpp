@@ -321,7 +321,7 @@ void introduction(string &turn, int &DEPTH)
     sf::Text mediumButton("medium", font);
     sf::RectangleShape mediumButtonBackground;
     if (true) {
-        mediumButton.setPosition({300, 80});
+        mediumButton.setPosition({300, 86});
         mediumButton.setFillColor(sf::Color::Black);
         sf::FloatRect textBounds = mediumButton.getGlobalBounds();
         sf::Vector2f recSize(textBounds.width+10, textBounds.height+10);
@@ -336,7 +336,7 @@ void introduction(string &turn, int &DEPTH)
     sf::Text diffcultButton("diffcult", font);
     sf::RectangleShape diffcultButtonBackground;
     if (true) {
-        diffcultButton.setPosition({500, 80});
+        diffcultButton.setPosition({550, 87});
         diffcultButton.setFillColor(sf::Color::Black);
         sf::FloatRect textBounds = diffcultButton.getGlobalBounds();
         sf::Vector2f recSize(textBounds.width+10, textBounds.height+10);
