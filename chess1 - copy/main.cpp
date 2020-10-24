@@ -8,14 +8,12 @@ struct chess_move
     // 4 for pawn becomes knight
     // 5 for pawn becomes bishop
     // 6 for pawn becomes queen
-    // 7 for pwan reached endline without becomming aything
+    // 7 for pwan reached endline without becomming amything
     int start_row;
     int start_col;
     int end_row;
     int end_col;
 };
-
-bool player1castled = false, player2castled = false;
 
 using namespace std;
 #include <bits/stdc++.h>

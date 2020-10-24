@@ -5,7 +5,7 @@ void allmove(int board[8][8], string p, vector<chess_move> &moves);
 void move_piece_simpler(int board[8][8], chess_move move, string p);
 
 
-// checking weather a move is valid or not -- 
+// checking weather a move is valid or not
 bool is_place_safe(int board[8][8], string p, int place[2])
 {
     for (int i = 0; i < 8; i++) {
@@ -84,12 +84,8 @@ bool bishop_move_is_valid(int board[8][8], chess_move move)
 
 bool check_castling(int board[8][8], string p, chess_move move)
 {
-    if (p == "player1" && player1castled) return false;
-    if (p == "player2" && player2castled) return false;
-    if (move.start_row != move.end_row) return false;
-    if (abs(move.start_col-move.end_col) != 2) return false;
+    bool rookMovedBefore = false, kingMovedBefore = false, castledBefore = false;
 
-    bool rookMovedBefore = false, kingMovedBefore = false;
     fstream fin;
     fin.open("chess.log", ios::in);
     string line;
@@ -107,6 +103,10 @@ bool check_castling(int board[8][8], string p, chess_move move)
                 if (a == "1e") kingMovedBefore = true;
                 if (a == "1a") rookMovedBefore = true;
             } else return false;
+
+            if (line.substr(0, 6) == "player") {
+                if (line.substr(8, 3) == "Cas") castledBefore = true;
+            }
         } else {
             if (move.end_col == 6) {
                 string a = line.substr(0, 2);
@@ -117,6 +117,10 @@ bool check_castling(int board[8][8], string p, chess_move move)
                 if (a == "8e") kingMovedBefore = true;
                 if (a == "8a") rookMovedBefore = true;
             } else return false;
+
+            if (line.substr(0, 6) == "comput") {
+                if (line.substr(10, 3) == "Cas") castledBefore = true;
+            }
         }
     }
     fin.close();
@@ -146,7 +150,7 @@ bool check_castling(int board[8][8], string p, chess_move move)
         if (!is_place_safe(board, p, tmp)) somewhereBeingAttacked = true;
     }
 
-    if (!rookMovedBefore && !kingMovedBefore && nothingInBetween && !somewhereBeingAttacked)
+    if (!rookMovedBefore && !kingMovedBefore && !castledBefore && nothingInBetween && !somewhereBeingAttacked)
         return true;
     return false;
 }
@@ -287,12 +291,25 @@ bool move_is_valid(int board[8][8], chess_move &move, string p)
         vector<int> v = {abs(move.end_row - move.start_row), abs(move.end_col - move.start_col)};
         sort(v.begin(), v.end());
         if (v[0] < 2 && v[1] < 2) valid = true;
-        else if (v[0] == 0 && v[1] == 2 && move.start_row == move.end_row && move.start_col == 4) {
-            if (check_castling(board, p, move)) {
-                valid = true;
-                move.special_move = 1;
+        else if (v[0] == 0 && v[1] == 2) {
+            bool kingStartedCorrectly, rookStartedCorrectly;
+            if (p == "player1") {
+                kingStartedCorrectly = move.start_row == move.end_row && move.start_row == 7 && move.start_col == 4;
+                if (move.end_row == 2) rookStartedCorrectly = board[7][0] == 1;
+                if (move.end_row == 6) rookStartedCorrectly = board[7][7] == 1;
+            } if (p == "player2") {
+                kingStartedCorrectly = move.start_row == move.end_row && move.start_row == 0 && move.start_col == 4;
+                if (move.end_row == 2) rookStartedCorrectly = board[0][0] == 1;
+                if (move.end_row == 6) rookStartedCorrectly = board[0][7] == 1;
             }
-        } else valid = false;
+
+            if (kingStartedCorrectly && rookStartedCorrectly) {
+                if (check_castling(board, p, move)) {
+                    valid = true;
+                    move.special_move = 1;
+                } else valid = false;
+            } else valid = false;
+        }
     }
 
     // pawn
@@ -371,12 +388,25 @@ bool move_is_valid_simpler(int board[8][8], chess_move move, string p)
         vector<int> v = {abs(move.end_row - move.start_row), abs(move.end_col - move.start_col)};
         sort(v.begin(), v.end());
         if (v[0] < 2 && v[1] < 2) valid = true;
-        else if (v[0] == 0 && v[1] == 2 && move.start_row == move.end_row && move.start_col == 4) {
-            if (check_castling(board, p, move)) {
-                valid = true;
-                move.special_move = 1;
+        else if (v[0] == 0 && v[1] == 2) {
+            bool kingStartedCorrectly, rookStartedCorrectly;
+            if (p == "player1") {
+                kingStartedCorrectly = move.start_row == move.end_row && move.start_row == 7 && move.start_col == 4;
+                if (move.end_row == 2) rookStartedCorrectly = board[7][0] == 1;
+                if (move.end_row == 6) rookStartedCorrectly = board[7][7] == 1;
+            } if (p == "player2") {
+                kingStartedCorrectly = move.start_row == move.end_row && move.start_row == 0 && move.start_col == 4;
+                if (move.end_row == 2) rookStartedCorrectly = board[0][0] == 1;
+                if (move.end_row == 6) rookStartedCorrectly = board[0][7] == 1;
             }
-        } else valid = false;
+
+            if (kingStartedCorrectly && rookStartedCorrectly) {
+                if (check_castling(board, p, move)) {
+                    valid = true;
+                    move.special_move = 1;
+                } else valid = false;
+            } else valid = false;
+        }
     }
 
     // pawn
@@ -390,7 +420,7 @@ bool move_is_valid_simpler(int board[8][8], chess_move move, string p)
 
 
 
-// moving piece functions -- done
+// moving piece functions
 void check_soldier_endline(int board[8][8], chess_move &move)
 {
     const int size = 56;
@@ -470,8 +500,6 @@ void move_piece(int board[8][8], chess_move move, string p)
                 board[move.start_row][5] = board[move.start_row][7];
                 board[move.start_row][7] = 0;
             }
-            if (p == "player1") player1castled = true;
-            if (p == "player2") player2castled = true;
         }
         if (move.special_move == 2) {
             fout << "En passant ";
@@ -590,7 +618,7 @@ void allmove(int board[8][8], string p, vector<chess_move> &moves)
 
 
 
-// game ends functions -- done
+// game ends functions
 bool someone_won(int board[8][8], string p)
 {
     int tmpboard[8][8];
