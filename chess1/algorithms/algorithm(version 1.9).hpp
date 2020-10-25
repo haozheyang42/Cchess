@@ -72,70 +72,69 @@ int eval(int arr2[8][8])
     int sc = 0;
     for (int x = 0; x < 8; x++) {
         for (int y = 0; y < 8; y++) {
-            if (arr2[x][y] == 1){
+            if (arr2[x][y] == 1) {
                 sc-=200;
-                sc-=rook_value[7-x][y];
+                sc-=rook_value[x][y];
             } if (arr2[x][y] == 2) {
                 sc-=120;
-                sc-=knight_value[7-x][y];
+                sc-=knight_value[x][y];
             } if (arr2[x][y] == 3) {
                 sc-=120;
-                sc-=bishop_value[7-x][y];
+                sc-=bishop_value[x][y];
             } if (arr2[x][y] == 4) {
                 sc-=360;
-                sc-=queen_value[7-x][y];
+                sc-=queen_value[x][y];
             } if (arr2[x][y] == 5) {
                 sc-=3600;
-                sc-=king_value[7-x][y];
+                sc-=king_value[x][y];
             } if (arr2[x][y] == 6) {
                 sc-=40;
-                sc-=pawn_value[7-x][y];
+                sc-=pawn_value[x][y];
             } if (arr2[x][y] == -1) {
                 sc+=200;
-                sc+=rook_value[x][y];
+                sc+=rook_value[7-x][7-y];
             } if (arr2[x][y] == -2) {
                 sc+=120;
-                sc+=knight_value[x][y];
+                sc+=knight_value[7-x][7-y];
             } if (arr2[x][y] == -3) {
                 sc+=120;
-                sc+=bishop_value[x][y];
+                sc+=bishop_value[7-x][7-y];
             } if (arr2[x][y] == -4) {
                 sc+=360;
-                sc+=queen_value[x][y];
+                sc+=queen_value[7-x][7-y];
             } if (arr2[x][y] == -5) {
                 sc+=3600;
-                sc+=king_value[x][y];
+                sc+=king_value[7-x][7-y];
             } if (arr2[x][y] == -6) {
                 sc+=40;
-                sc+=pawn_value[x][y];
+                sc+=pawn_value[7-x][7-y];
             }
         }
     }
     return sc;
 }
 
-int one_max(int arr[8][8], int currentMinscore)
+int one_max(int board[8][8], int currentMinscore)
 {
-    int arr2[8][8];
-    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v;
-    allmove(arr2, "player2", v);
+    int tmpboard[8][8];
+    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) tmpboard[i][j] = board[i][j];
+    vector<chess_move> v;
+    allmove(tmpboard, "player2", v);
 
     int maxscore = -99999999;
-    for (int i: v) {
-        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) arr2[k][j] = arr[k][j];
-        int arrr[2][2] = {(i/1000)%10, (i/100)%10, (i/10)%10, i%10};
-        bool spec = check_special_move(arr2, arrr);
-        move_piece_simpler(arr2, arrr, "player2", spec);
+    for (chess_move i: v) {
+        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) tmpboard[k][j] = board[k][j];
+        chess_move tmp = i;
+        move_piece_simpler(tmpboard, tmp, "player2");
 
-        int sc = eval(arr2);
+        int sc = eval(tmpboard);
         maxscore = max(sc, maxscore);
         if (maxscore > currentMinscore) return 1;
     }
 
     if (v.size() != 0) return maxscore;
     else {
-        if (!is_it_tie(arr, "player2")) return -5200;
+        if (!is_it_tie(board, "player2")) return -1300;
         else {
             if (currentMinscore < 0) return 1;
             return 0;
@@ -143,28 +142,27 @@ int one_max(int arr[8][8], int currentMinscore)
     }
 }
 
-int one_min(int arr[8][8], int currentMaxscore)
+int one_min(int board[8][8], int currentMaxscore)
 {
-    int arr2[8][8];
-    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v;
-    allmove(arr2, "player1", v);
+    int tmpboard[8][8];
+    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) tmpboard[i][j] = board[i][j];
+    vector<chess_move> v;
+    allmove(tmpboard, "player1", v);
 
     int minscore = 99999999;
-    for (int i: v) {
-        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) arr2[k][j] = arr[k][j];
-        int arrr[2][2] = {(i/1000)%10, (i/100)%10, (i/10)%10, i%10};
-        bool spec = check_special_move(arr2, arrr);
-        move_piece_simpler(arr2, arrr, "player1", spec);
+    for (chess_move i: v) {
+        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) tmpboard[k][j] = board[k][j];
+        chess_move tmp = i;
+        move_piece_simpler(tmpboard, tmp, "player1");
 
-        int sc = eval(arr2);
+        int sc = eval(tmpboard);
         minscore = min(minscore, sc);
         if (minscore < currentMaxscore) return 1;
     }
 
     if (v.size() != 0) return minscore;
     else {
-        if (!is_it_tie(arr, "player1")) return 5200;
+        if (!is_it_tie(board, "player1")) return 1300;
         else {
             if (currentMaxscore > 0) return 1;
             return 0;
@@ -172,23 +170,22 @@ int one_min(int arr[8][8], int currentMaxscore)
     }
 }
 
-int multi_max(int arr[8][8], int currentMinscore, int depth)
+int multi_max(int board[8][8], int currentMinscore, int depth)
 {
-    int arr2[8][8];
-    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v;
-    allmove(arr2, "player2", v);
+    int tmpboard[8][8];
+    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) tmpboard[i][j] = board[i][j];
+    vector<chess_move> v;
+    allmove(tmpboard, "player2", v);
 
     int maxscore = -99999999;
-    for (int i: v) {
-        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) arr2[k][j] = arr[k][j];
-        int arrr[2][2] = {(i/1000)%10, (i/100)%10, (i/10)%10, i%10};
-        bool spec = check_special_move(arr2, arrr);
-        move_piece_simpler(arr2, arrr, "player2", spec);
+    for (chess_move i: v) {
+        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) tmpboard[k][j] = board[k][j];
+        chess_move tmp = i;
+        move_piece_simpler(tmpboard, tmp, "player2");
         
         int sc;
-        if (depth == 2) sc = one_min(arr2, maxscore);
-        if (depth > 2) sc = multi_min(arr2, maxscore, depth-1);
+        if (depth == 2) sc = one_min(tmpboard, maxscore);
+        if (depth > 2) sc = multi_min(tmpboard, maxscore, depth-1);
 
         if (sc == 1) continue;
         maxscore = sc;
@@ -197,7 +194,7 @@ int multi_max(int arr[8][8], int currentMinscore, int depth)
 
     if (v.size() != 0) return maxscore;
     else {
-        if (!is_it_tie(arr, "player2")) return -5200;
+        if (!is_it_tie(board, "player2")) return -1300;
         else {
             if (currentMinscore < 0) return 1;
             return 0;
@@ -205,23 +202,22 @@ int multi_max(int arr[8][8], int currentMinscore, int depth)
     }
 }
 
-int multi_min(int arr[8][8], int currentMaxscore, int depth)
+int multi_min(int board[8][8], int currentMaxscore, int depth)
 {
-    int arr2[8][8];
-    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v;
-    allmove(arr2, "player1", v);
+    int tmpboard[8][8];
+    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) tmpboard[i][j] = board[i][j];
+    vector<chess_move> v;
+    allmove(tmpboard, "player1", v);
 
     int minscore = 99999999;
-    for (int i: v) {
-        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) arr2[k][j] = arr[k][j];
-        int arrr[2][2] = {(i/1000)%10, (i/100)%10, (i/10)%10, i%10};
-        bool spec = check_special_move(arr2, arrr);
-        move_piece_simpler(arr2, arrr, "player1", spec);
+    for (chess_move i: v) {
+        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) tmpboard[k][j] = board[k][j];
+        chess_move tmp = i;
+        move_piece_simpler(tmpboard, tmp, "player1");
 
         int sc; 
-        if (depth == 2) sc = one_max(arr2, minscore);
-        if (depth > 2) sc = multi_max(arr2, minscore, depth-1);
+        if (depth == 2) sc = one_max(tmpboard, minscore);
+        if (depth > 2) sc = multi_max(tmpboard, minscore, depth-1);
 
         if (sc == 1) continue;
         minscore = sc;
@@ -230,7 +226,7 @@ int multi_min(int arr[8][8], int currentMaxscore, int depth)
 
     if (v.size() != 0) return minscore;
     else {
-        if (!is_it_tie(arr, "player1")) return 5200;
+        if (!is_it_tie(board, "player1")) return 1300;
         else {
             if (currentMaxscore > 0) return 1;
             return 0;
@@ -238,23 +234,22 @@ int multi_min(int arr[8][8], int currentMaxscore, int depth)
     }
 }
 
-int computer_move(int arr[8][8], bool &specialMove)
+chess_move computer_move(int board[8][8])
 {
-    // search depth of DEPTH
+    // search depth of DEPTH (DEPTH >= 3)
     int DEPTH = 3;
-    int arr2[8][8];
-    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    vector<int> v, w;
-    allmove(arr2, "player2", v);
+    int tmpboard[8][8];
+    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) tmpboard[i][j] = board[i][j];
+    vector<chess_move> v, w;
+    allmove(tmpboard, "player2", v);
 
     int maxscore = -99999999;
-    for (int i: v) {
-        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) arr2[k][j] = arr[k][j];
-        int arrr[2][2] = {(i/1000)%10, (i/100)%10, (i/10)%10, i%10};
-        bool spec = check_special_move(arr2, arrr);
-        move_piece_simpler(arr2, arrr, "player2", spec);
+    for (chess_move i: v) {
+        for (int k = 0; k < 8; k++) for (int j = 0; j < 8; j++) tmpboard[k][j] = board[k][j];
+        chess_move tmp = i;
+        move_piece_simpler(tmpboard, tmp, "player2");
 
-        int sc = multi_min(arr2, maxscore, DEPTH-1);
+        int sc = multi_min(tmpboard, maxscore, DEPTH-1);
         if (sc == 1) continue;
         if (sc != maxscore) {
             maxscore = sc;
@@ -266,12 +261,6 @@ int computer_move(int arr[8][8], bool &specialMove)
     int SZ = w.size();
     std::srand((unsigned) time(0));
     int result = (rand() % SZ);
-    int move = w[result];
-
-    for (int i = 0; i < 8; i++) for (int j = 0; j < 8; j++) arr2[i][j] = arr[i][j];
-    int arrr[2][2] = {(move/1000)%10, (move/100)%10, (move/10)%10, move%10};
-    bool spec = false;
-    move_is_valid(arr2, arrr, "player2", spec);
-    specialMove = spec;
+    chess_move move = w[result];
     return move;
 }

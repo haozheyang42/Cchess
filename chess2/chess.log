@@ -1,6 +1,10 @@
-player1: Pawn 2e 4e
-player2: Pawn 7d 5d
 player1: Pawn 2d 4d
 player2: Pawn 7c 5c
-player1: Bishop 1f 5b
-player2: Queen 8d 7d
+player1: Pawn 4d 5c
+player2: Pawn 7d 5d
+player1: En passant 5c 6d
+player2: Knight 8b 6c
+player1: Pawn 6d 7e
+player2: Knight 6c 8b
+player1: Pawn 7e 8d
+player1 won!
