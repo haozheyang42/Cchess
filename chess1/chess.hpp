@@ -1,8 +1,15 @@
-const int sizeOfSprite = 56;
+const float sizeOfSprite = 56;
 
 #define display_chess_board(window, board, sprites) \
 	window.clear(); \
 	window.draw(board); \
+	for (sf::Sprite i: sprites) window.draw(i); \
+	window.display();
+
+#define display_chess_board_with_eaten_piece(window, board, sprites, eatenPiece) \
+	window.clear(); \
+	window.draw(board); \
+    window.draw(eatenPiece); \
 	for (sf::Sprite i: sprites) window.draw(i); \
 	window.display();
 
@@ -81,18 +88,18 @@ void play_chess(int board[8][8], string turn, int DEPTH)
     vector<sf::Sprite> avalibles;
 
 
-    // varibles req change
+    // moving varibles
     bool isMove=false;
     float dx=0, dy=0;
     sf::Vector2f oldPos,newPos;
-    string str;
     int n=0;
-
-    int Cmove;
-    int pieceLastMoved;
-    
     chess_move computerMove;
 
+    // previous move varibles
+    bool computerEatenPiece;
+    bool showEatenPiece;
+    sf::Sprite eatenPiece;
+    eatenPiece.setTexture(t1);
 
     // clear everything in chess.log
     fstream fout;
@@ -109,6 +116,25 @@ void play_chess(int board[8][8], string turn, int DEPTH)
         if (turn == "player2") {
             // get computer's move
             computerMove = computer_move(board, DEPTH);
+
+            showEatenPiece = false;
+            if (computerMove.special_move == 2) {
+                int n = board[computerMove.end_row+1][computerMove.end_col];
+                int x = abs(n) - 1;
+                int y = n>0 ? 1:0;
+                eatenPiece.setTexture(t1);
+                eatenPiece.setTextureRect(sf::IntRect(sizeOfSprite*x, sizeOfSprite*y, sizeOfSprite, sizeOfSprite));
+                eatenPiece.setPosition({sizeOfSprite*(computerMove.end_col), sizeOfSprite*(computerMove.end_row+1)});
+                computerEatenPiece = true;
+            } else if (board[computerMove.end_row][computerMove.end_col] > 0) {
+                int n = board[computerMove.end_row][computerMove.end_col];
+                int x = abs(n) - 1;
+                int y = n>0 ? 1:0;
+                eatenPiece.setTexture(t1);
+                eatenPiece.setTextureRect(sf::IntRect(sizeOfSprite*x, sizeOfSprite*y, sizeOfSprite, sizeOfSprite));
+                eatenPiece.setPosition({sizeOfSprite*(computerMove.end_col), sizeOfSprite*computerMove.end_row});
+                computerEatenPiece = true;
+            } else computerEatenPiece = false;
             
             oldPos = sf::Vector2f(computerMove.start_col*sizeOfSprite, computerMove.start_row*sizeOfSprite);
             newPos = sf::Vector2f(computerMove.end_col*sizeOfSprite, computerMove.end_row*sizeOfSprite);
@@ -141,18 +167,23 @@ void play_chess(int board[8][8], string turn, int DEPTH)
                 newPos = sf::Vector2f(computerMove.end_col*sizeOfSprite, computerMove.end_row*sizeOfSprite);
                 for (int i = 0; i < chessFigures.size(); i++)
                     if (chessFigures[i].getPosition() == newPos) n = i;
+                
+                if (computerEatenPiece) showEatenPiece = true;
+                else showEatenPiece = false;
 
                 // move the piece
                 sf::Vector2f p = oldPos - newPos;
                 
                 for (int k = 0; k < 10; k++) {
-                    chessFigures[n].move(p.x/10, p.y/10); 
-                    display_chess_board(window, chessBoard, chessFigures);
+                    chessFigures[n].move(p.x/10, p.y/10);
+                    if (!showEatenPiece) {display_chess_board(window, chessBoard, chessFigures);}
+                    else {display_chess_board_with_eaten_piece(window, chessBoard, chessFigures, eatenPiece);}
                 }
                 p = newPos - oldPos;
                 for (int k = 0; k < 10; k++) {
-                    chessFigures[n].move(p.x/10, p.y/10); 
-                    display_chess_board(window, chessBoard, chessFigures);
+                    chessFigures[n].move(p.x/10, p.y/10);
+                    if (!showEatenPiece) {display_chess_board(window, chessBoard, chessFigures);}
+                    else {display_chess_board_with_eaten_piece(window, chessBoard, chessFigures, eatenPiece);}
                 }
             }
             
@@ -164,7 +195,7 @@ void play_chess(int board[8][8], string turn, int DEPTH)
                         oldPos = chessFigures[i].getPosition();
 
                         // display places that the piece can move to
-                        int arr[2] = {int(oldPos.y)/sizeOfSprite, int(oldPos.x)/sizeOfSprite};
+                        int arr[2] = {int(oldPos.y/sizeOfSprite), int(oldPos.x/sizeOfSprite)};
                         vector<int> v;
                         for (int i = 0; i < 8; i++)
                             for (int j = 0; j < 8; j++) {
