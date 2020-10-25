@@ -273,8 +273,12 @@ void introduction(string &turn, int &DEPTH)
     background.setSize({900, 200});
     background.setFillColor(sf::Color(209, 209, 209));
 
+    float shift = 3;
+
     sf::Text computerButton("computer", font);
     sf::RectangleShape computerButtonBackground;
+    sf::ConvexShape computerButtonShade;
+    bool inComputerButton = false;
     if (true) {
         computerButton.setPosition({100, 80});
         computerButton.setFillColor(sf::Color::Black);
@@ -286,10 +290,26 @@ void introduction(string &turn, int &DEPTH)
         computerButtonBackground.move({-5, -5});
         computerButtonBackground.setOutlineColor(sf::Color::Black);
         computerButtonBackground.setOutlineThickness(2);
+
+        float left = computerButtonBackground.getGlobalBounds().left;
+        float right = computerButtonBackground.getGlobalBounds().width+left;
+        float top = computerButtonBackground.getGlobalBounds().top;
+        float bottom = computerButtonBackground.getGlobalBounds().height+top;
+
+        computerButtonShade.setPointCount(6);
+        computerButtonShade.setFillColor(sf::Color(127, 127, 127));
+        computerButtonShade.setPoint(0, {left, top});
+        computerButtonShade.setPoint(1, {right, top});
+        computerButtonShade.setPoint(2, {right+shift, top+shift});
+        computerButtonShade.setPoint(3, {right+shift, bottom+shift});
+        computerButtonShade.setPoint(4, {left+shift, bottom+shift});
+        computerButtonShade.setPoint(5, {left, bottom});
     }
 
     sf::Text playerButton("player", font);
     sf::RectangleShape playerButtonBackground;
+    sf::ConvexShape playerButtonShade;
+    bool inPlayerButton = false;
     if (true) {
         playerButton.setPosition({400, 83});
         playerButton.setFillColor(sf::Color::Black);
@@ -301,10 +321,26 @@ void introduction(string &turn, int &DEPTH)
         playerButtonBackground.move({-5, -5});
         playerButtonBackground.setOutlineColor(sf::Color::Black);
         playerButtonBackground.setOutlineThickness(2);
+
+        float left = playerButtonBackground.getGlobalBounds().left;
+        float right = playerButtonBackground.getGlobalBounds().width+left;
+        float top = playerButtonBackground.getGlobalBounds().top;
+        float bottom = playerButtonBackground.getGlobalBounds().height+top;
+
+        playerButtonShade.setPointCount(6);
+        playerButtonShade.setFillColor(sf::Color(127, 127, 127));
+        playerButtonShade.setPoint(0, {left, top});
+        playerButtonShade.setPoint(1, {right, top});
+        playerButtonShade.setPoint(2, {right+shift, top+shift});
+        playerButtonShade.setPoint(3, {right+shift, bottom+shift});
+        playerButtonShade.setPoint(4, {left+shift, bottom+shift});
+        playerButtonShade.setPoint(5, {left, bottom});
     }
 
     sf::Text easyButton("easy", font);
     sf::RectangleShape easyButtonBackground;
+    sf::ConvexShape easyButtonShade;
+    bool inEasyButton = false;
     if (true) {
         easyButton.setPosition({100, 80});
         easyButton.setFillColor(sf::Color::Black);
@@ -316,10 +352,26 @@ void introduction(string &turn, int &DEPTH)
         easyButtonBackground.move({-5, -5});
         easyButtonBackground.setOutlineColor(sf::Color::Black);
         easyButtonBackground.setOutlineThickness(2);
+
+        float left = easyButtonBackground.getGlobalBounds().left;
+        float right = easyButtonBackground.getGlobalBounds().width+left;
+        float top = easyButtonBackground.getGlobalBounds().top;
+        float bottom = easyButtonBackground.getGlobalBounds().height+top;
+
+        easyButtonShade.setPointCount(6);
+        easyButtonShade.setFillColor(sf::Color(127, 127, 127));
+        easyButtonShade.setPoint(0, {left, top});
+        easyButtonShade.setPoint(1, {right, top});
+        easyButtonShade.setPoint(2, {right+shift, top+shift});
+        easyButtonShade.setPoint(3, {right+shift, bottom+shift});
+        easyButtonShade.setPoint(4, {left+shift, bottom+shift});
+        easyButtonShade.setPoint(5, {left, bottom});
     }
 
     sf::Text mediumButton("medium", font);
     sf::RectangleShape mediumButtonBackground;
+    sf::ConvexShape mediumButtonShade;
+    bool inMediumButton = false;
     if (true) {
         mediumButton.setPosition({300, 86});
         mediumButton.setFillColor(sf::Color::Black);
@@ -331,10 +383,26 @@ void introduction(string &turn, int &DEPTH)
         mediumButtonBackground.move({-5, -5});
         mediumButtonBackground.setOutlineColor(sf::Color::Black);
         mediumButtonBackground.setOutlineThickness(2);
+
+        float left = mediumButtonBackground.getGlobalBounds().left;
+        float right = mediumButtonBackground.getGlobalBounds().width+left;
+        float top = mediumButtonBackground.getGlobalBounds().top;
+        float bottom = mediumButtonBackground.getGlobalBounds().height+top;
+
+        mediumButtonShade.setPointCount(6);
+        mediumButtonShade.setFillColor(sf::Color(127, 127, 127));
+        mediumButtonShade.setPoint(0, {left, top});
+        mediumButtonShade.setPoint(1, {right, top});
+        mediumButtonShade.setPoint(2, {right+shift, top+shift});
+        mediumButtonShade.setPoint(3, {right+shift, bottom+shift});
+        mediumButtonShade.setPoint(4, {left+shift, bottom+shift});
+        mediumButtonShade.setPoint(5, {left, bottom});
     }
 
     sf::Text diffcultButton("diffcult", font);
     sf::RectangleShape diffcultButtonBackground;
+    sf::ConvexShape diffcultButtonShade;
+    bool inDiffcultButton = false;
     if (true) {
         diffcultButton.setPosition({550, 87});
         diffcultButton.setFillColor(sf::Color::Black);
@@ -346,6 +414,20 @@ void introduction(string &turn, int &DEPTH)
         diffcultButtonBackground.move({-5, -5});
         diffcultButtonBackground.setOutlineColor(sf::Color::Black);
         diffcultButtonBackground.setOutlineThickness(2);
+
+        float left = diffcultButtonBackground.getGlobalBounds().left;
+        float right = diffcultButtonBackground.getGlobalBounds().width+left;
+        float top = diffcultButtonBackground.getGlobalBounds().top;
+        float bottom = diffcultButtonBackground.getGlobalBounds().height+top;
+
+        diffcultButtonShade.setPointCount(6);
+        diffcultButtonShade.setFillColor(sf::Color(127, 127, 127));
+        diffcultButtonShade.setPoint(0, {left, top});
+        diffcultButtonShade.setPoint(1, {right, top});
+        diffcultButtonShade.setPoint(2, {right+shift, top+shift});
+        diffcultButtonShade.setPoint(3, {right+shift, bottom+shift});
+        diffcultButtonShade.setPoint(4, {left+shift, bottom+shift});
+        diffcultButtonShade.setPoint(5, {left, bottom});
     }
 
     int stage = 1;
@@ -392,22 +474,90 @@ void introduction(string &turn, int &DEPTH)
                 }
             }
 
-            if (stage == 4) window.close();
+            if (stage == 2) {
+                if (computerButtonBackground.getGlobalBounds().contains(pos.x, pos.y) && !inComputerButton) {
+                    computerButtonBackground.move({shift, shift});
+                    computerButton.move({shift, shift});
+                    inComputerButton = true;
+                }
+
+                if (!computerButtonBackground.getGlobalBounds().contains(pos.x, pos.y) && inComputerButton) {
+                    computerButtonBackground.move({-shift, -shift});
+                    computerButton.move({-shift, -shift});
+                    inComputerButton = false;
+                }
+
+                if (playerButtonBackground.getGlobalBounds().contains(pos.x, pos.y) && !inPlayerButton) {
+                    playerButtonBackground.move({shift, shift});
+                    playerButton.move({shift, shift});
+                    inPlayerButton = true;
+                }
+
+                if (!playerButtonBackground.getGlobalBounds().contains(pos.x, pos.y) && inPlayerButton) {
+                    playerButtonBackground.move({-shift, -shift});
+                    playerButton.move({-shift, -shift});
+                    inPlayerButton = false;
+                }
+            }
+
+            if (stage == 3) {
+                if (easyButtonBackground.getGlobalBounds().contains(pos.x, pos.y) && !inEasyButton) {
+                    easyButtonBackground.move({shift, shift});
+                    easyButton.move({shift, shift});
+                    inEasyButton = true;
+                }
+
+                if (!easyButtonBackground.getGlobalBounds().contains(pos.x, pos.y) && inEasyButton) {
+                    easyButtonBackground.move({-shift, -shift});
+                    easyButton.move({-shift, -shift});
+                    inEasyButton = false;
+                }
+
+                if (mediumButtonBackground.getGlobalBounds().contains(pos.x, pos.y) && !inMediumButton) {
+                    mediumButtonBackground.move({shift, shift});
+                    mediumButton.move({shift, shift});
+                    inMediumButton = true;
+                }
+
+                if (!mediumButtonBackground.getGlobalBounds().contains(pos.x, pos.y) && inMediumButton) {
+                    mediumButtonBackground.move({-shift, -shift});
+                    mediumButton.move({-shift, -shift});
+                    inMediumButton = false;
+                }
+
+                if (diffcultButtonBackground.getGlobalBounds().contains(pos.x, pos.y) && !inDiffcultButton) {
+                    diffcultButtonBackground.move({shift, shift});
+                    diffcultButton.move({shift, shift});
+                    inDiffcultButton = true;
+                }
+
+                if (!diffcultButtonBackground.getGlobalBounds().contains(pos.x, pos.y) && inDiffcultButton) {
+                    diffcultButtonBackground.move({-shift, -shift});
+                    diffcultButton.move({-shift, -shift});
+                    inDiffcultButton = false;
+                }
+            }
         }
 
+        if (stage == 4) window.close();
         window.clear();
         window.draw(background);
         window.draw(text);
         if (stage == 2) {
+            window.draw(computerButtonShade);
             window.draw(computerButtonBackground);
             window.draw(computerButton);
+            window.draw(playerButtonShade);
             window.draw(playerButtonBackground);
             window.draw(playerButton);
         } if (stage == 3) {
+            window.draw(easyButtonShade);
             window.draw(easyButtonBackground);
             window.draw(easyButton);
+            window.draw(mediumButtonShade);
             window.draw(mediumButtonBackground);
             window.draw(mediumButton);
+            window.draw(diffcultButtonShade);
             window.draw(diffcultButtonBackground);
             window.draw(diffcultButton);
         }

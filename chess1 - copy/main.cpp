@@ -1,14 +1,15 @@
 struct chess_move
 {
     int special_move;
-    // 0 for non special
-    // 1 for castling
-    // 2 for en passent
-    // 3 for pawn becomes rook
-    // 4 for pawn becomes knight
-    // 5 for pawn becomes bishop
-    // 6 for pawn becomes queen
-    // 7 for pwan reached endline without becomming amything
+    /* 0 for non special
+     * 1 for castling
+     * 2 for en passent
+     * 3 for pawn becomes rook
+     * 4 for pawn becomes knight
+     * 5 for pawn becomes bishop
+     * 6 for pawn becomes queen
+     * 7 for pwan reached endline without becomming amything
+     */
     int start_row;
     int start_col;
     int end_row;
@@ -29,8 +30,8 @@ int main()
 	// HWND hWnd = GetConsoleWindow();
     // ShowWindow(hWnd, SW_HIDE);
 
-    string turn = "";
-    int DEPTH;
+    string turn = "player1";
+    int DEPTH = 3;
     introduction(turn, DEPTH);
 
     // play chess
