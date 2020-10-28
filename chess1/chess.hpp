@@ -1,3 +1,5 @@
+#include <thread>
+#include <chrono>
 const float sizeOfSprite = 56;
 
 #define display_chess_board(window, board, sprites) \
@@ -466,6 +468,12 @@ void introduction(string &turn, int &DEPTH)
     sf::RenderWindow window(sf::VideoMode(900, 200), "Welcome to Haozhe Yang's Chess Game!");
     window.setFramerateLimit(60);
 
+    bool clickedComputerButton = false;
+    bool clickedPlayerButton = false;
+    bool clickedEasyButton = false;
+    bool clickedMediumButton = false;
+    bool clickedDiffcultButton = false;
+
     while(window.isOpen())
     {
         sf::Event event;
@@ -480,29 +488,50 @@ void introduction(string &turn, int &DEPTH)
 
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && stage == 2) {
                 if (computerButtonBackground.getGlobalBounds().contains(pos.x,pos.y)) {
+                    clickedComputerButton = true;
+                } if (playerButtonBackground.getGlobalBounds().contains(pos.x,pos.y)) {
+                    clickedPlayerButton = true;
+                }
+            }
+
+            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left && stage == 2) {
+                if (computerButtonBackground.getGlobalBounds().contains(pos.x,pos.y) && clickedComputerButton) {
                     turn = "player2";
                     text.setString(introStr3);
                     stage = 3;
-                    this_thread::sleep_for (chrono::milliseconds(200));
-                } if (playerButtonBackground.getGlobalBounds().contains(pos.x,pos.y)) {
+                } if (playerButtonBackground.getGlobalBounds().contains(pos.x,pos.y) && clickedPlayerButton) {
                     turn = "player1";
                     text.setString(introStr3);
                     stage = 3;
-                    this_thread::sleep_for (chrono::milliseconds(200));
                 }
+                clickedComputerButton = false;
+                clickedPlayerButton = false;
             }
 
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && stage == 3) {
                 if (easyButtonBackground.getGlobalBounds().contains(pos.x,pos.y)) {
+                    clickedEasyButton = true;
+                } if (mediumButtonBackground.getGlobalBounds().contains(pos.x,pos.y)) {
+                    clickedMediumButton = true;
+                } if (diffcultButtonBackground.getGlobalBounds().contains(pos.x,pos.y)) {
+                    clickedDiffcultButton = true;
+                }
+            }
+
+            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left && stage == 3) {
+                if (easyButtonBackground.getGlobalBounds().contains(pos.x,pos.y) && clickedEasyButton) {
                     DEPTH = 0;
                     stage = 4;
-                } if (mediumButtonBackground.getGlobalBounds().contains(pos.x,pos.y)) {
+                } if (mediumButtonBackground.getGlobalBounds().contains(pos.x,pos.y) && clickedMediumButton) {
                     DEPTH = 1;
                     stage = 4;
-                } if (diffcultButtonBackground.getGlobalBounds().contains(pos.x,pos.y)) {
+                } if (diffcultButtonBackground.getGlobalBounds().contains(pos.x,pos.y) && clickedDiffcultButton) {
                     DEPTH = 3;
                     stage = 4;
                 }
+                clickedEasyButton = false;
+                clickedMediumButton = false;
+                clickedDiffcultButton = false;
             }
 
             if (stage == 2) {

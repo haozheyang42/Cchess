@@ -26,9 +26,9 @@ using namespace std;
 
 int main()
 {
-    // // hide console
-	// HWND hWnd = GetConsoleWindow();
-    // ShowWindow(hWnd, SW_HIDE);
+    // hide console
+	HWND hWnd = GetConsoleWindow();
+    ShowWindow(hWnd, SW_HIDE);
 
     string turn = "player1";
     int DEPTH = 3;
