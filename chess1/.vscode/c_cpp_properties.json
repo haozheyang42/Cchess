@@ -3,7 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "C:\\program files\\CodeBlocks\\SFML-2.5.1\\include",
+                "C:\\Users\\Administrator\\AppData\\Local\\Programs\\SFML-2.5.1\\include",
                 "${workspaceFolder}"
             ],
             "defines": [
@@ -11,7 +11,7 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:\\program files\\CodeBlocks\\MinGW\\bin\\g++.exe",
+            "compilerPath": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\mingw32\\bin\\g++.exe",
             "cStandard": "c11",
             "cppStandard": "gnu++14"
         }

@@ -18,7 +18,7 @@ struct chess_move
 
 using namespace std;
 #include <bits/stdc++.h>
-#include <sfml/graphics.hpp>
+#include <sfml/Graphics.hpp>
 #include <windows.h>
 #include "checkAI.hpp"
 #include "algorithm(generation 1).hpp"

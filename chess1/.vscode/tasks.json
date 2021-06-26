@@ -12,15 +12,15 @@
                 "${file}",
                 "-o",
                 "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
-                "-std=c++17",
-                "-IC:\\program files\\CodeBlocks\\SFML-2.5.1\\include",
-                "-LC:\\program files\\CodeBlocks\\SFML-2.5.1\\lib",
+                "-std=c++11",
+                "-IC:\\Users\\Administrator\\AppData\\Local\\Programs\\SFML-2.5.1\\include",
+                "-LC:\\Users\\Administrator\\AppData\\Local\\Programs\\SFML-2.5.1\\lib",
                 "-lsfml-graphics",
                 "-lsfml-window",
                 "-lsfml-system"
             ],
             "options": {
-                "cwd": "C:\\program files\\CodeBlocks\\MinGW\\bin"
+                "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\mingw32\\bin"
             },
             "problemMatcher": [
                 "$gcc"

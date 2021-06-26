@@ -289,7 +289,7 @@ void play_chess(int board[8][8], string turn, int DEPTH)
 // welcome to my chess program
 void introduction(string &turn, int &DEPTH)
 {
-    string introStr1 = "Welcome to Haozhe Yang's Chess game!\nHere are some special keys you can use:\n    1. Press space to look at what move the computer has made in case if you did not see it.\n    2. Press escape to surrender to Haozhe Yang's algorithm.\n\nPress right key to continue";
+    string introStr1 = "Welcome to Haozhe Yang's Chess game!\nHere are some special keys you can use:\n    1. Press space to look at what move the computer has made in case if you did not see it.\n    2. Press escape to surrender to Haozhe Yang's algorithm.\n\nPress enter key to continue";
     string introStr2 = "Please choose who is going first: ";
     string introStr3 = "Please choose the diffculty of the AI: ";
     sf::Vector2f position; position.x = 50; position.y = 30;
@@ -481,7 +481,7 @@ void introduction(string &turn, int &DEPTH)
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) window.close();
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
                 text.setString(introStr2);
                 stage = 2;
             }
